@@ -3,27 +3,17 @@ import FormInput from "../components/FormInput";
 import PrimaryButton from "../components/PrimaryButton";
 import ScreenContainer from "../components/ScreenContainer";
 import SectionHeader from "../components/SectionHeader";
-import useLoginViewModel from "../viewmodels/useLoginViewModel";
+import useRegisterViewModel from "../viewmodels/useRegisterViewModel";
 
-export default function LoginScreen({ navigation }) {
-  const {
-    form,
-    errors,
-    loading,
-    submitError,
-    successMessage,
-    handleChange,
-    submitLogin,
-  } = useLoginViewModel();
+export default function RegisterScreen({ navigation }) {
+  const { form, errors, loading, successMessage, handleChange, submitRegister } =
+    useRegisterViewModel();
 
-  const handleLogin = async () => {
-    const response = await submitLogin();
+  const handleRegister = async () => {
+    const ok = await submitRegister();
 
-    if (response) {
-      navigation.reset({
-        index: 0,
-        routes: [{ name: "Home" }],
-      });
+    if (ok) {
+      navigation.navigate("Login");
     }
   };
 
@@ -31,43 +21,50 @@ export default function LoginScreen({ navigation }) {
     <ScreenContainer scrollable>
       <View style={styles.wrapper}>
         <SectionHeader
-          title="GreenMarket"
-          subtitle="Inicia sesion para acceder a tus eventos y reservaciones."
+          title="Registro"
+          subtitle="Pantalla mock para validar el flujo de alta mientras llega la API."
         />
 
         <FormInput
+          label="Nombre"
+          placeholder="Tu nombre completo"
+          value={form.name}
+          onChangeText={(value) => handleChange("name", value)}
+          error={errors.name}
+        />
+
+        <FormInput
+          label="Correo"
+          placeholder="correo@ejemplo.com"
           autoCapitalize="none"
           autoCorrect={false}
           keyboardType="email-address"
-          label="Correo"
-          onChangeText={(value) => handleChange("email", value)}
-          placeholder="correo@ejemplo.com"
           value={form.email}
+          onChangeText={(value) => handleChange("email", value)}
           error={errors.email}
         />
 
         <FormInput
           label="Contrasena"
-          onChangeText={(value) => handleChange("password", value)}
-          placeholder="Ingresa tu contrasena"
+          placeholder="Minimo 6 caracteres"
           secureTextEntry
           value={form.password}
+          onChangeText={(value) => handleChange("password", value)}
           error={errors.password}
         />
 
-        {submitError ? <Text style={styles.errorText}>{submitError}</Text> : null}
         {successMessage ? (
           <Text style={styles.successText}>{successMessage}</Text>
         ) : null}
 
         <PrimaryButton
-          title="Iniciar sesion"
-          onPress={handleLogin}
+          title="Crear cuenta"
+          onPress={handleRegister}
           loading={loading}
         />
 
-        <Text style={styles.linkText} onPress={() => navigation.navigate("Register")}>
-          Crear cuenta con mock data
+        <Text style={styles.linkText} onPress={() => navigation.navigate("Login")}>
+          Ya tengo cuenta
         </Text>
       </View>
     </ScreenContainer>
@@ -78,11 +75,6 @@ const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
     justifyContent: "center",
-  },
-  errorText: {
-    marginBottom: 16,
-    fontSize: 14,
-    color: "#B3261E",
   },
   successText: {
     marginBottom: 16,
