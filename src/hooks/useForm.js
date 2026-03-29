@@ -4,6 +4,7 @@ export const useForm = (initialValues, validations = {}) => {
   const [form, setForm] = useState(initialValues);
   const [errors, setErrors] = useState({});
 
+  // Valida un solo campo usando la regla regex que se le pase al hook.
   const validateField = (field, value) => {
     if (!validations[field]) {
       return null;
@@ -13,11 +14,13 @@ export const useForm = (initialValues, validations = {}) => {
     return regex.test(value) ? null : message;
   };
 
+  // Actualiza el valor del campo y recalcula su error en tiempo real.
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: validateField(field, value) }));
   };
 
+  // Recorre todos los campos para validar el formulario completo antes de enviar.
   const validateForm = () => {
     const nextErrors = Object.keys(initialValues).reduce((acc, field) => {
       acc[field] = validateField(field, form[field]);
@@ -32,6 +35,7 @@ export const useForm = (initialValues, validations = {}) => {
     return Object.values(errors).every((error) => !error);
   };
 
+  // Devuelve el formulario a su estado inicial, util despues de un submit exitoso.
   const resetForm = () => {
     setForm(initialValues);
     setErrors({});

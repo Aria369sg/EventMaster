@@ -6,6 +6,7 @@ import SectionHeader from "../components/SectionHeader";
 import useLoginViewModel from "../viewmodels/useLoginViewModel";
 
 export default function LoginScreen({ navigation }) {
+  // La vista solo consume el estado y acciones expuestas por el ViewModel.
   const {
     form,
     errors,
@@ -17,12 +18,16 @@ export default function LoginScreen({ navigation }) {
   } = useLoginViewModel();
 
   const handleLogin = async () => {
+    // Si el login fue exitoso, se reemplaza la pila para que Login no quede atras.
     const response = await submitLogin();
 
     if (response) {
+      const homeRoute =
+        response.user?.role === "admin" ? "AdminDashboard" : "UserHome";
+
       navigation.reset({
         index: 0,
-        routes: [{ name: "Home" }],
+        routes: [{ name: homeRoute }],
       });
     }
   };

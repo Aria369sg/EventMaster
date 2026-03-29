@@ -44,3 +44,22 @@ export const mockEvents = [
       "Mercado comunitario con frutas, verduras, conservas y productos de temporada.",
   },
 ];
+
+export const mockTickets = [
+  {
+    id: 101,
+    eventId: 1,
+    title: "Feria de productos organicos",
+    date: "2026-04-02 10:00",
+    location: "Centro Verde",
+    seats: 2,
+  },
+  {
+    id: 102,
+    eventId: 3,
+    title: "Mercado local de temporada",
+    date: "2026-04-05 09:00",
+    location: "Plaza Principal",
+    seats: 1,
+  },
+];

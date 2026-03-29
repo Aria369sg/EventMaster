@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+// Guarda informacion no sensible en almacenamiento local persistente.
 export const saveItem = async (key, value) => {
   try {
     await AsyncStorage.setItem(key, JSON.stringify(value));
@@ -8,6 +9,7 @@ export const saveItem = async (key, value) => {
   }
 };
 
+// Recupera el valor y lo convierte de JSON a objeto de JavaScript.
 export const getItem = async (key) => {
   try {
     const value = await AsyncStorage.getItem(key);
@@ -18,6 +20,7 @@ export const getItem = async (key) => {
   }
 };
 
+// Elimina un dato local cuando ya no se necesita.
 export const removeItem = async (key) => {
   try {
     await AsyncStorage.removeItem(key);

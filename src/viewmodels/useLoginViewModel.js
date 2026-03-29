@@ -2,7 +2,9 @@ import { useState } from "react";
 import { saveItem } from "../helpers/storage";
 import { useForm } from "../hooks/useForm";
 import { saveToken } from "../helpers/tokenStorage";
+import { APP_CONFIG } from "../models/appConfig";
 import { STORAGE_KEYS } from "../models/storageKeys";
+import { loginUser } from "../services/authService";
 import { loginWithMock } from "../services/mockAuthService";
 
 const loginInitialValues = {
@@ -40,6 +42,7 @@ const getErrorMessage = (error) => {
 };
 
 export default function useLoginViewModel() {
+  // El ViewModel concentra la logica y deja la vista enfocada solo en renderizar.
   const { form, errors, handleChange, validateForm, resetForm } = useForm(
     loginInitialValues,
     loginValidations,
@@ -52,18 +55,22 @@ export default function useLoginViewModel() {
     setSubmitError("");
     setSuccessMessage("");
 
+    // Antes de consumir el servicio, valida todos los campos del formulario.
     if (!validateForm()) {
       return false;
     }
 
     try {
       setLoading(true);
-      const response = await loginWithMock(form);
+      // Esta decision permite cambiar entre mock y API real sin tocar la vista.
+      const authService = APP_CONFIG.useMockAuth ? loginWithMock : loginUser;
+      const response = await authService(form);
 
       if (response?.token) {
         await saveToken(response.token);
       }
 
+      // Guardamos tambien el perfil para usarlo en pantallas como Home.
       if (response?.user) {
         await saveItem(STORAGE_KEYS.userProfile, response.user);
       }

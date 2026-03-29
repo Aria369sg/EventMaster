@@ -1,4 +1,5 @@
-import { SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ScreenContainer({ children, scrollable = false }) {
   const Wrapper = scrollable ? ScrollView : View;
