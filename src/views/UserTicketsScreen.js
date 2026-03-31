@@ -1,9 +1,10 @@
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, Text, View, Image, Pressable } from "react-native";
 import BottomNavBar from "../components/BottomNavBar";
 import ProfileField from "../components/ProfileField";
 import ScreenContainer from "../components/ScreenContainer";
-import SectionHeader from "../components/SectionHeader";
 import useTicketsViewModel from "../viewmodels/useTicketsViewModel";
+import TextInformative from "../components/TextInformative";
+
 
 const navItems = [
   { key: "home", label: "Home", route: "UserHome" },
@@ -12,13 +13,28 @@ const navItems = [
   { key: "profile", label: "Perfil", route: "UserProfile" },
 ];
 
-function TicketCard({ ticket }) {
+function TicketCard({ ticket, onPress }) {
   return (
+
+    
     <View style={styles.ticketCard}>
-      <Text style={styles.ticketTitle}>{ticket.title}</Text>
-      <ProfileField label="Fecha" value={ticket.date} />
-      <ProfileField label="Lugar" value={ticket.location} />
-      <ProfileField label="Asientos" value={ticket.seats.toString()} />
+      <View style={styles.row}>
+        <Image
+          source={{ uri: "https://via.placeholder.com/100" }}
+          style={styles.image}
+        />
+        <View style={styles.content}>
+          <Text style={styles.ticketTitle}>{ticket.title}</Text>
+          <ProfileField label="Fecha" value={ticket.date} />
+          <ProfileField label="Lugar" value={ticket.location} />
+          <ProfileField label="Asientos" value={ticket.seats.toString()} />
+        </View>
+      </View>
+      <View style={styles.footerRow}>
+        <Pressable onPress={onPress} style={styles.button}>
+          <Text>Cancel</Text>
+        </Pressable>
+      </View>      
     </View>
   );
 }
@@ -28,9 +44,9 @@ export default function UserTicketsScreen({ navigation }) {
 
   return (
     <ScreenContainer>
-      <SectionHeader
-        title="Mis tickets"
-        subtitle="Reservaciones mock para simular el historial del usuario."
+      <TextInformative
+        text="My reservations"
+        
       />
 
       <FlatList
@@ -63,5 +79,41 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#163020",
     marginBottom: 12,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 12,
+  },
+  content: {
+    flex: 1,
+  },
+  image: {
+    width: 80,
+    height: 80,
+    borderRadius: 10,
+    marginRight: 12,
+    backgroundColor: "#EDEDED",
+  },
+  footerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 8,
+    alignSelf: "flex-end",
+  },
+  meta: {
+    fontSize: 14,
+    color: "#4A5C4D",
+    marginBottom: 4,
+    padding: 4
+  },
+  button: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#D9E4D6",
   },
 });

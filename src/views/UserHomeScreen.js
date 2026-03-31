@@ -2,7 +2,7 @@ import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-nativ
 import BottomNavBar from "../components/BottomNavBar";
 import EventCard from "../components/EventCard";
 import ScreenContainer from "../components/ScreenContainer";
-import SectionHeader from "../components/SectionHeader";
+import TextInformative from "../components/TextInformative";
 import useEventsViewModel from "../viewmodels/useEventsViewModel";
 import useSessionViewModel from "../viewmodels/useSessionViewModel";
 import FormInput from "../components/FormInput";
@@ -22,21 +22,21 @@ export default function UserHomeScreen({ navigation }) {
 
   return (
     <ScreenContainer>
-      <SectionHeader
-        title={`Home, ${user?.name || "usuario"}`}
-        subtitle="Pantalla principal del flujo de usuario basada en el low fidelity."
-      />
+      
       <FormInput
         placeholder= 'Buscar Evento'
         value={search}
         onChangeText={setSearch}
+      />
+      <TextInformative
+        text={'Upcoming Events'}
       />
       {sessionLoading || loading ? (
         <View style={styles.centered}>
           <ActivityIndicator size="large" color="#2D6A4F" />
         </View>
       ) : (
-
+        
         <FlatList
           data={search ? filter : events.slice(0, 3)}
           keyExtractor={(item) => item.id.toString()}
@@ -47,12 +47,18 @@ export default function UserHomeScreen({ navigation }) {
             />
           )}
           ListHeaderComponent={
-            <View style={styles.heroCard}>
-              <Text style={styles.heroTitle}>Proximo evento destacado</Text>
-              <Text style={styles.heroText}>
-                {events[0]?.name || "Sin eventos"} 
-              </Text>
-              <Text style={styles.heroMeta}>{events[0]?.date || "Pendiente"}</Text>
+            <View>
+              <View style={styles.heroCard}>
+                <Text style={styles.heroTitle}>Proximo evento destacado</Text>
+                <Text style={styles.heroText}>
+                  {events[0]?.name || "Sin eventos"} 
+                </Text>
+                <Text style={styles.heroMeta}>{events[0]?.date || "Pendiente"}</Text>
+              </View>
+
+              <TextInformative
+                text={'Other Events'}
+              />
             </View>
           }
           showsVerticalScrollIndicator={false}

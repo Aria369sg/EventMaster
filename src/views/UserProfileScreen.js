@@ -5,6 +5,8 @@ import ProfileField from "../components/ProfileField";
 import PrimaryButton from "../components/PrimaryButton";
 import ScreenContainer from "../components/ScreenContainer";
 import useSessionViewModel from "../viewmodels/useSessionViewModel";
+import TextInformative from "../components/TextInformative";
+
 
 const navItems = [
   { key: "home", label: "Home", route: "UserHome" },
@@ -41,14 +43,25 @@ export default function UserProfileScreen({ navigation }) {
                 source={{ uri: user?.photo || "https://via.placeholder.com/100" }}
                 style={styles.avatar}
               />
-              <ProfileField label="Nombre" value={user?.name || "No disponible"} />
-              <ProfileField label="Correo" value={user?.email || "No disponible"} />
-              <ProfileField label="Rol" value={user?.role || "user"} />
-              <PrimaryButton title="Cerrar sesion" onPress={handleLogout} />
+              <View style={styles.textContainer}>
+                <TextInformative
+                  text={user?.name || "Usuario"}
+                />
+                <TextInformative
+                  text={user?.email || "Email"}
+                />
+              </View>
+              <ProfileField label="Settings" value={'Settings'} />
+              <ProfileField label="My Information" value={'My Information'} />
+              
+              
             </View>
+            
           )}
         </View>
-
+        <View style={styles.wrapperBottom}>
+              <PrimaryButton title="Cerrar sesion" onPress={handleLogout} />
+        </View>
         <BottomNavBar
           items={navItems}
           activeKey="profile"
@@ -81,10 +94,19 @@ const styles = StyleSheet.create({
   avatar: {
     width: 100,
     height: 100,
-    borderRadius: 50, // hace el círculo
-    alignSelf: "center", // 👈 centra horizontalmente
+    borderRadius: 50,
+    alignSelf: "center",
     marginBottom: 20,
     borderWidth: 2,
     borderColor: "#ccc",
+  },
+  textContainer: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  wrapperBottom:{
+    justifyContent: 'flex-end',
+    flex: 1,
+    marginBottom: 25
   }
 });
