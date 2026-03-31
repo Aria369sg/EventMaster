@@ -64,17 +64,20 @@ export default function LoginScreen({ navigation }) {
         {successMessage ? (
           <Text style={styles.successText}>{successMessage}</Text>
         ) : null}
-
-        <PrimaryButton
-          title="Iniciar sesion"
-          onPress={handleLogin}
-          loading={loading}
-        />
-
-        <Text style={styles.linkText} onPress={() => navigation.navigate("Register")}>
-          Crear cuenta con mock data
-        </Text>
+        
+        
       </View>
+      <View style={styles.wrapperBottom}>
+          <PrimaryButton
+            title="Iniciar sesion"
+            onPress={handleLogin}
+            loading={loading}
+          />
+
+          <Text style={styles.linkText} onPress={() => navigation.navigate("Register")}>
+            Crear cuenta con mock data
+          </Text>
+        </View>
     </ScreenContainer>
   );
 }
@@ -82,7 +85,7 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: 'flex-start',
   },
   errorText: {
     marginBottom: 16,
@@ -100,4 +103,9 @@ const styles = StyleSheet.create({
     color: "#2D6A4F",
     fontWeight: "600",
   },
+  wrapperBottom:{
+    justifyContent: 'flex-end',
+    flex: 1,
+    marginBottom: 25
+  }
 });

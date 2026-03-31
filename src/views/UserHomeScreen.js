@@ -5,6 +5,8 @@ import ScreenContainer from "../components/ScreenContainer";
 import SectionHeader from "../components/SectionHeader";
 import useEventsViewModel from "../viewmodels/useEventsViewModel";
 import useSessionViewModel from "../viewmodels/useSessionViewModel";
+import FormInput from "../components/FormInput";
+import { useSearchEventViewModel } from "../viewmodels/useSearchEventViewModel";
 
 const navItems = [
   { key: "home", label: "Home", route: "UserHome" },
@@ -16,6 +18,7 @@ const navItems = [
 export default function UserHomeScreen({ navigation }) {
   const { user, loading: sessionLoading } = useSessionViewModel();
   const { events, loading } = useEventsViewModel();
+  const {search, setSearch, filter} = useSearchEventViewModel(events);
 
   return (
     <ScreenContainer>
@@ -23,14 +26,19 @@ export default function UserHomeScreen({ navigation }) {
         title={`Home, ${user?.name || "usuario"}`}
         subtitle="Pantalla principal del flujo de usuario basada en el low fidelity."
       />
-
+      <FormInput
+        placeholder= 'Buscar Evento'
+        value={search}
+        onChangeText={setSearch}
+      />
       {sessionLoading || loading ? (
         <View style={styles.centered}>
           <ActivityIndicator size="large" color="#2D6A4F" />
         </View>
       ) : (
+
         <FlatList
-          data={events.slice(0, 3)}
+          data={search ? filter : events.slice(0, 3)}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <EventCard

@@ -1,9 +1,9 @@
 import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { Image } from "react-native";
 import BottomNavBar from "../components/BottomNavBar";
 import ProfileField from "../components/ProfileField";
 import PrimaryButton from "../components/PrimaryButton";
 import ScreenContainer from "../components/ScreenContainer";
-import SectionHeader from "../components/SectionHeader";
 import useSessionViewModel from "../viewmodels/useSessionViewModel";
 
 const navItems = [
@@ -28,17 +28,19 @@ export default function UserProfileScreen({ navigation }) {
     <ScreenContainer>
       <View style={styles.wrapper}>
         <View style={styles.content}>
-          <SectionHeader
-            title="Mi perfil"
-            subtitle="Pantalla de perfil mock para completar el flujo del usuario."
-          />
+          
 
           {loading ? (
             <View style={styles.centered}>
               <ActivityIndicator size="large" color="#2D6A4F" />
             </View>
           ) : (
+            
             <View style={styles.card}>
+              <Image
+                source={{ uri: user?.photo || "https://via.placeholder.com/100" }}
+                style={styles.avatar}
+              />
               <ProfileField label="Nombre" value={user?.name || "No disponible"} />
               <ProfileField label="Correo" value={user?.email || "No disponible"} />
               <ProfileField label="Rol" value={user?.role || "user"} />
@@ -76,4 +78,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#D9E4D6",
   },
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50, // hace el círculo
+    alignSelf: "center", // 👈 centra horizontalmente
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: "#ccc",
+  }
 });
