@@ -52,7 +52,7 @@ export default function UserProfileScreen({ navigation }) {
                 />
               </View>
               <ProfileField label="Settings" value={'Settings'} />
-              <ProfileField label="My Information" value={'My Information'} />
+              <ProfileField label="My Information" value={'My Information '} />
               
               
             </View>
