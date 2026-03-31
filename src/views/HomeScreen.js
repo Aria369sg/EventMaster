@@ -1,11 +1,28 @@
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Alert, StyleSheet, Text, View } from "react-native";
 import PrimaryButton from "../components/PrimaryButton";
 import ScreenContainer from "../components/ScreenContainer";
 import SectionHeader from "../components/SectionHeader";
+import { getToken, getTokenDebugInfo } from "../helpers/tokenStorage";
 import useHomeViewModel from "../viewmodels/useHomeViewModel";
 
 export default function HomeScreen({ navigation }) {
   const { user, eventsCount, loading, logout } = useHomeViewModel();
+
+  const handleCheckStorage = async () => {
+    const token = await getToken();
+    const debug = await getTokenDebugInfo();
+
+    Alert.alert(
+      "Revision de storage",
+      [
+        `JWT: ${token || "No encontrado"}`,
+        `Backend activo: ${debug.activeBackend}`,
+        `SecureStore disponible: ${debug.secureStoreAvailable ? "Si" : "No"}`,
+        `Token en SecureStore: ${debug.secureStoreHasToken ? "Si" : "No"}`,
+        `Token en fallback AsyncStorage: ${debug.asyncStorageFallbackHasToken ? "Si" : "No"}`,
+      ].join("\n"),
+    );
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -45,6 +62,13 @@ export default function HomeScreen({ navigation }) {
           <PrimaryButton
             title="Ir a registro"
             onPress={() => navigation.navigate("Register")}
+          />
+
+          <View style={styles.spacer} />
+
+          <PrimaryButton
+            title="Revisar token guardado"
+            onPress={handleCheckStorage}
           />
 
           <Text style={styles.logoutText} onPress={handleLogout}>

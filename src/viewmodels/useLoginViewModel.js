@@ -1,4 +1,5 @@
 import { useState } from "react";
+import StorageService from "../helpers/StorageService";
 import { saveItem } from "../helpers/storage";
 import { useForm } from "../hooks/useForm";
 import { saveToken } from "../helpers/tokenStorage";
@@ -14,11 +15,11 @@ const loginInitialValues = {
 
 const loginValidations = {
   email: {
-    regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    regex: StorageService.patterns.email,
     message: "Ingresa un correo valido.",
   },
   password: {
-    regex: /^.{6,}$/,
+    regex: StorageService.patterns.password,
     message: "La contrasena debe tener al menos 6 caracteres.",
   },
 };
