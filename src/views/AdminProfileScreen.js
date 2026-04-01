@@ -1,10 +1,11 @@
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { ActivityIndicator, StyleSheet, View, Image, Text } from "react-native";
 import BottomNavBar from "../components/BottomNavBar";
 import ProfileField from "../components/ProfileField";
 import PrimaryButton from "../components/PrimaryButton";
 import ScreenContainer from "../components/ScreenContainer";
 import SectionHeader from "../components/SectionHeader";
 import useSessionViewModel from "../viewmodels/useSessionViewModel";
+import TextInformative from "../components/TextInformative";
 
 const navItems = [
   { key: "dashboard", label: "Dashboard", route: "AdminDashboard" },
@@ -26,34 +27,51 @@ export default function AdminProfileScreen({ navigation }) {
 
   return (
     <ScreenContainer>
-      <View style={styles.wrapper}>
-        <View style={styles.content}>
-          <SectionHeader
-            title="Perfil admin"
-            subtitle="Pantalla mock de perfil para el flujo del administrador."
-          />
-
-          {loading ? (
-            <View style={styles.centered}>
-              <ActivityIndicator size="large" color="#2D6A4F" />
+          <View style={styles.wrapper}>
+            <View style={styles.content}>
+              
+    
+              {loading ? (
+                <View style={styles.centered}>
+                  <ActivityIndicator size="large" color="#2D6A4F" />
+                </View>
+              ) : (
+                
+                <View style={styles.card}>
+                  <Image
+                    source={{ uri: user?.photo || "https://via.placeholder.com/100" }}
+                    style={styles.avatar}
+                  />
+                  <View style={styles.textContainer}>
+                    <TextInformative
+                      text={user?.name || "Usuario"}
+                    />
+                    <TextInformative
+                      text={user?.email || "Email"}
+                    />
+                  </View>
+                  <ProfileField label="Nombre" value={user?.name || "No disponible"} />
+                  <ProfileField label="Account Status" value={user?.role || "user"} />
+                  
+                  
+                </View>
+                
+              )}
             </View>
-          ) : (
-            <View style={styles.card}>
-              <ProfileField label="Nombre" value={user?.name || "No disponible"} />
-              <ProfileField label="Correo" value={user?.email || "No disponible"} />
-              <ProfileField label="Rol" value={user?.role || "admin"} />
-              <PrimaryButton title="Cerrar sesion" onPress={handleLogout} />
+            <View style={styles.wrapperBottom}>
+              <Text style={styles.linkText} onPress={() => navigation.navigate("Register", { isAdmin: true })}>
+                Register a new admin
+              </Text>
+                  <PrimaryButton title="Logout" onPress={handleLogout} />
             </View>
-          )}
-        </View>
-
-        <BottomNavBar
-          items={navItems}
-          activeKey="profile"
-          onChange={(item) => navigation.navigate(item.route)}
-        />
-      </View>
-    </ScreenContainer>
+            
+            <BottomNavBar 
+              items={navItems}
+              activeKey="profile"
+              onChange={(item) => navigation.navigate(item.route)}
+            />
+          </View>
+        </ScreenContainer>
   );
 }
 
@@ -75,5 +93,30 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: "#D9E4D6",
+  },
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    alignSelf: "center",
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: "#ccc",
+  },
+  textContainer: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  wrapperBottom:{
+    justifyContent: 'flex-end',
+    flex: 1,
+    marginBottom: 25
+  },
+  linkText: {
+    marginTop: 18,
+    textAlign: "center",
+    color: "#2D6A4F",
+    fontWeight: "600",
+    bottom:20
   },
 });

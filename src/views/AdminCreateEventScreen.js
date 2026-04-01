@@ -5,6 +5,8 @@ import PrimaryButton from "../components/PrimaryButton";
 import ScreenContainer from "../components/ScreenContainer";
 import SectionHeader from "../components/SectionHeader";
 import { useForm } from "../hooks/useForm";
+import useEventsViewModel from "../viewmodels/useEventsViewModel";
+import { useEffect } from "react";
 
 const navItems = [
   { key: "dashboard", label: "Dashboard", route: "AdminDashboard" },
@@ -12,7 +14,6 @@ const navItems = [
   { key: "events", label: "Eventos", route: "AdminEvents" },
   { key: "profile", label: "Perfil", route: "AdminProfile" },
 ];
-
 const initialValues = {
   name: "",
   date: "",
@@ -20,44 +21,75 @@ const initialValues = {
   location: "",
 };
 
-export default function AdminCreateEventScreen({ navigation }) {
-  const { form, handleChange } = useForm(initialValues);
+export default function AdminCreateEventScreen({ navigation, route }) {
+  const event = route?.params?.event;
+  const isEdit = !!event;
+  const { editEvent, createEvent } = useEventsViewModel();
+  
+
+  const { form, handleChange, setForm } = useForm(initialValues);
+
+
+
+  useEffect(() => {
+    if(event) {
+      setForm({
+        name: event.name,
+        date: event.date,
+        capacity: event.capacity.toString(),
+        location: event.location,
+      })
+    }
+  }, [event]);
 
   return (
     <ScreenContainer>
       <View style={styles.wrapper}>
         <View style={styles.content}>
           <SectionHeader
-            title="Crear evento"
-            subtitle="Formulario mock para representar el flujo de alta del administrador."
+            title={isEdit ? 'Update event' : "Create a new event"}
           />
 
           <View style={styles.formCard}>
             <FormInput
-              label="Nombre del evento"
-              placeholder="Ej. Feria verde"
+              label="Name"
+              placeholder="Event name E.g. Feria verde"
               value={form.name}
               onChangeText={(value) => handleChange("name", value)}
             />
             <FormInput
-              label="Fecha"
+              label="Date and hour"
               placeholder="2026-04-08 10:00"
               value={form.date}
               onChangeText={(value) => handleChange("date", value)}
             />
             <FormInput
-              label="Capacidad"
-              placeholder="120"
-              value={form.capacity}
-              onChangeText={(value) => handleChange("capacity", value)}
-            />
-            <FormInput
-              label="Lugar"
+              label="Place"
               placeholder="Centro Verde"
               value={form.location}
               onChangeText={(value) => handleChange("location", value)}
             />
-            <PrimaryButton title="Guardar mock" onPress={() => {}} />
+            <FormInput
+              label="Capacity"
+              placeholder="120"
+              value={form.capacity}
+              onChangeText={(value) => handleChange("capacity", value)}
+            />
+            
+            <PrimaryButton title={isEdit ? 'UPDATE' : 'CREATE'} onPress={() => {
+              const payload = {
+                ...form,
+                capacity: Number(form.capacity),
+              };
+
+              if (isEdit) {
+                editEvent(event.id, payload);
+              } else {
+                createEvent(payload);
+              }
+
+              navigation.goBack();
+            }} />
           </View>
         </View>
 

@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text, View, Image } from "react-native";
 
 
-export default function EventCard({ event, onReserve, isReserved }) {
+export default function EventCard({ event, mode, onReserve, isReserved, onEdit, onDelete }) {
   return (
     <View style={styles.card}>
       <View style={styles.row}>
@@ -17,19 +17,42 @@ export default function EventCard({ event, onReserve, isReserved }) {
         </View>
       </View>
       <View style={styles.footerRow}>
-        <Text style={styles.meta}>° Seats [1]</Text>
-        <Pressable
-          onPress={onReserve}
-          disabled={isReserved}
-          style={[
-            styles.button,
-            isReserved && { backgroundColor: "#95d5b2" }
-          ]}
-        >
-          <Text>
-            {isReserved ? "Reservado" : "Reserve"}
-          </Text>
-        </Pressable>
+
+        {mode === 'user' && (
+          <View>
+            <Text style={styles.meta}>° Seats [1]</Text>
+
+            <Pressable
+              onPress={onReserve}
+              disabled={isReserved}
+              style={[
+                styles.button,
+                isReserved && { backgroundColor: "#95d5b2" }
+              ]}
+              >
+                <Text>
+                  {isReserved ? "Reservado" : "Reserve"}
+                </Text>
+            </Pressable>
+
+          </View>
+        )}
+
+        {mode === 'admin' && (
+          <View style={{ flexDirection: "row", gap: 10 }}>
+            <Pressable onPress={onEdit} style={styles.button}>
+              <Text>Edit</Text>
+            </Pressable>
+
+            <Pressable
+              onPress={onDelete}
+              style={[styles.button, { backgroundColor: "#ffccd5" }]}
+            >
+              <Text>Delete</Text>
+            </Pressable>
+          </View>
+        )}
+        
       </View>
       
     </View>

@@ -13,7 +13,7 @@ const navItems = [
 ];
 
 export default function AdminEventsScreen({ navigation }) {
-  const { events, loading } = useEventsViewModel();
+  const { events, loading, editEvent, deleteEvent } = useEventsViewModel();
 
   return (
     <ScreenContainer>
@@ -32,7 +32,13 @@ export default function AdminEventsScreen({ navigation }) {
             <FlatList
               data={events}
               keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => <EventCard event={item} />}
+              renderItem={({ item }) => 
+              <EventCard 
+                event={item}
+                mode='admin'
+                onEdit={() => navigation.navigate("AdminCreateEvent", { event: item })}
+                onDelete={() => deleteEvent(item.id)}
+                />}
               showsVerticalScrollIndicator={false}
             />
           )}

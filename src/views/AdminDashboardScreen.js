@@ -2,10 +2,10 @@ import { ActivityIndicator, FlatList, StyleSheet, View } from "react-native";
 import BottomNavBar from "../components/BottomNavBar";
 import EventCard from "../components/EventCard";
 import ScreenContainer from "../components/ScreenContainer";
-import SectionHeader from "../components/SectionHeader";
 import StatCard from "../components/StatCard";
 import useEventsViewModel from "../viewmodels/useEventsViewModel";
 import useSessionViewModel from "../viewmodels/useSessionViewModel";
+import TextInformative from "../components/TextInformative";
 
 const navItems = [
   { key: "dashboard", label: "Dashboard", route: "AdminDashboard" },
@@ -16,15 +16,14 @@ const navItems = [
 
 export default function AdminDashboardScreen({ navigation }) {
   const { user, loading: sessionLoading } = useSessionViewModel();
-  const { events, loading } = useEventsViewModel();
+  const { events, loading, editEvent, deleteEvent } = useEventsViewModel();
 
   return (
     <ScreenContainer>
       <View style={styles.wrapper}>
         <View style={styles.content}>
-          <SectionHeader
-            title={`Dashboard, ${user?.name || "admin"}`}
-            subtitle="Vista general del administrador con tarjetas de resumen y eventos."
+          <TextInformative
+            text="About"
           />
 
           {sessionLoading || loading ? (
@@ -32,23 +31,42 @@ export default function AdminDashboardScreen({ navigation }) {
               <ActivityIndicator size="large" color="#2D6A4F" />
             </View>
           ) : (
-            <FlatList
-              data={events}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => <EventCard event={item} />}
-              ListHeaderComponent={
-                <View style={styles.statsRow}>
-                  <StatCard label="Eventos" value={events.length.toString()} />
-                  <View style={styles.gap} />
-                  <StatCard label="Usuarios" value="24" />
-                  <View style={styles.gap} />
-                  <StatCard label="Tickets" value="61" />
-                </View>
-              }
-              showsVerticalScrollIndicator={false}
-            />
+
+              
+              <FlatList
+                data={events}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => 
+                <EventCard 
+                event={item}
+                mode='admin'
+                onEdit={() => navigation.navigate("AdminCreateEvent", { event: item })}
+                onDelete={() => deleteEvent(item.id)}
+                 />}
+                ListHeaderComponent={
+                  <View>
+                    <View style={styles.statsRow}>
+                      <StatCard label="Upcoming Events" value={events.length.toString()} />
+                      <View style={styles.gap} />
+                      <StatCard label="Canceled Events" value="24" />
+                      <View style={styles.gap} />
+                      <StatCard label="Edited Events" value="61" />
+                      
+                    </View>
+                    <TextInformative
+                        text="Recently added"
+                    />
+                  </View>
+                  
+                }
+                showsVerticalScrollIndicator={false}
+
+              />
+              
+
           )}
         </View>
+        
 
         <BottomNavBar
           items={navItems}
@@ -78,5 +96,9 @@ const styles = StyleSheet.create({
   },
   gap: {
     width: 10,
+  },
+  statsColumn: {
+    flexDirection: 'column',
+    marginBottom: 16,
   },
 });

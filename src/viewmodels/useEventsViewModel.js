@@ -38,11 +38,42 @@ export default function useEventsViewModel() {
     }
   }
 
+  const deleteEvent = (eventId) => {
+  setEvents((prev) =>
+    prev.filter((event) => event.id !== eventId)
+  );
+
+    //api
+  };
+
+  const editEvent = (eventId, updatedData) => {
+    setEvents((prev) =>
+      prev.map((event) =>
+        event.id === eventId
+          ? { ...event, ...updatedData }
+          : event
+      )
+    );
+      //api
+  };
+
+  const createEvent = (newEvent) => {
+    const newId = Date.now(); // mock id
+
+    setEvents((prev) => [
+      ...prev,
+      { id: newId, ...newEvent }
+    ]);
+  };
+
   return {
     events,
     loading,
     error,
     reserveEvent,
-    reserved
+    reserved,
+    deleteEvent,
+    editEvent,
+    createEvent
   };
 }

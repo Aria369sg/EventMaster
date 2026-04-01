@@ -5,7 +5,9 @@ import ScreenContainer from "../components/ScreenContainer";
 import SectionHeader from "../components/SectionHeader";
 import useRegisterViewModel from "../viewmodels/useRegisterViewModel";
 
-export default function RegisterScreen({ navigation }) {
+export default function RegisterScreen({ navigation , route}) {
+  const isAdmin = route?.params?.isAdmin || false;
+  
   const { form, errors, loading, successMessage, handleChange, submitRegister } =
     useRegisterViewModel();
 
@@ -21,7 +23,7 @@ export default function RegisterScreen({ navigation }) {
     <ScreenContainer scrollable>
       <View>
         <SectionHeader
-          title="Register"
+          title={isAdmin ? 'Register Admin' : 'Register'}
         />
       </View>
       <View style={styles.card}>
@@ -68,9 +70,13 @@ export default function RegisterScreen({ navigation }) {
           loading={loading}
         />
 
-        <Text style={styles.linkText} onPress={() => navigation.navigate("Login")}>
+        {!isAdmin && (
+          <Text style={styles.linkText} onPress={() => navigation.navigate("Login")}>
           Already have an account? Login
         </Text>
+        )}
+
+        
       </View>
     </ScreenContainer>
   );

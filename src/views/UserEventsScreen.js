@@ -42,6 +42,7 @@ export default function UserEventsScreen({ navigation }) {
           renderItem={({ item }) => (
             <EventCard
               event={item}
+              mode='user'
               isReserved={reserved.includes(item.id)}
               onReserve={() => reserveEvent(item.id)}
 

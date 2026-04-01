@@ -41,5 +41,5 @@ export const useForm = (initialValues, validations = {}) => {
     setErrors({});
   };
 
-  return { form, errors, handleChange, validateForm, isValid, resetForm };
+  return { form, errors, handleChange, validateForm, isValid, resetForm, setForm };
 };
