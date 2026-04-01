@@ -40,7 +40,7 @@ function TicketCard({ ticket, onPress }) {
 }
 
 export default function UserTicketsScreen({ navigation }) {
-  const { tickets } = useTicketsViewModel();
+  const { tickets, cancelTicket } = useTicketsViewModel();
 
   return (
     <ScreenContainer>
@@ -52,7 +52,12 @@ export default function UserTicketsScreen({ navigation }) {
       <FlatList
         data={tickets}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <TicketCard ticket={item} />}
+        renderItem={({ item }) => (
+          <TicketCard
+            ticket={item}
+            onPress={() => cancelTicket(item.id)}
+          />
+        )}
         showsVerticalScrollIndicator={false}
       />
 

@@ -17,7 +17,7 @@ const navItems = [
 
 export default function UserHomeScreen({ navigation }) {
   const { user, loading: sessionLoading } = useSessionViewModel();
-  const { events, loading } = useEventsViewModel();
+  const { events, loading, reserveEvent, reserved } = useEventsViewModel();
   const {search, setSearch, filter} = useSearchEventViewModel(events);
 
   return (
@@ -43,7 +43,9 @@ export default function UserHomeScreen({ navigation }) {
           renderItem={({ item }) => (
             <EventCard
               event={item}
-              onPress={() => navigation.navigate("EventDetail", { event: item })}
+              isReserved={reserved.includes(item.id)}
+              onReserve={() => reserveEvent(item.id)}
+
             />
           )}
           ListHeaderComponent={

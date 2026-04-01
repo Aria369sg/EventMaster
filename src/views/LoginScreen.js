@@ -34,27 +34,30 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <ScreenContainer scrollable>
-      <View style={styles.wrapper}>
+      <View>
         <SectionHeader
-          title="GreenMarket"
-          subtitle="Inicia sesion para acceder a tus eventos y reservaciones."
+          title="Login"
+          
         />
+      </View>
+      <View style={styles.card}>
+        
 
         <FormInput
           autoCapitalize="none"
           autoCorrect={false}
           keyboardType="email-address"
-          label="Correo"
+          label="email"
           onChangeText={(value) => handleChange("email", value)}
-          placeholder="correo@ejemplo.com"
+          placeholder="email@example.com"
           value={form.email}
           error={errors.email}
         />
 
         <FormInput
-          label="Contrasena"
+          label="Password"
           onChangeText={(value) => handleChange("password", value)}
-          placeholder="Ingresa tu contrasena"
+          placeholder="Password"
           secureTextEntry
           value={form.password}
           error={errors.password}
@@ -68,16 +71,16 @@ export default function LoginScreen({ navigation }) {
         
       </View>
       <View style={styles.wrapperBottom}>
-          <PrimaryButton
-            title="Iniciar sesion"
-            onPress={handleLogin}
-            loading={loading}
-          />
+        <PrimaryButton
+          title="Login"
+          onPress={handleLogin}
+          loading={loading}
+        />
 
-          <Text style={styles.linkText} onPress={() => navigation.navigate("Register")}>
-            Crear cuenta con mock data
-          </Text>
-        </View>
+        <Text style={styles.linkText} onPress={() => navigation.navigate("Register")}>
+          Register
+        </Text>
+      </View>
     </ScreenContainer>
   );
 }
@@ -107,5 +110,13 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     flex: 1,
     marginBottom: 25
+  },
+   card: {
+    padding: 16,
+    borderRadius: 14,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#D9E4D6",
+    marginBottom: 14,
   }
 });

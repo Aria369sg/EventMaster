@@ -16,7 +16,7 @@ const navItems = [
 ];
 
 export default function UserEventsScreen({ navigation }) {
-  const { events, loading, error } = useEventsViewModel();
+  const { events, loading, error, reserveEvent, reserved } = useEventsViewModel();
   const {search, setSearch, filter} = useSearchEventViewModel(events);
 
   return (
@@ -42,7 +42,9 @@ export default function UserEventsScreen({ navigation }) {
           renderItem={({ item }) => (
             <EventCard
               event={item}
-              onPress={() => navigation.navigate("EventDetail", { event: item })}
+              isReserved={reserved.includes(item.id)}
+              onReserve={() => reserveEvent(item.id)}
+
             />
           )}
           ListEmptyComponent={error ? <Text style={styles.error}>{error}</Text> : null}

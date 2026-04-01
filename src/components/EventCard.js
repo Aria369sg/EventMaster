@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text, View, Image } from "react-native";
 
 
-export default function EventCard({ event, onPress }) {
+export default function EventCard({ event, onReserve, isReserved }) {
   return (
     <View style={styles.card}>
       <View style={styles.row}>
@@ -18,8 +18,17 @@ export default function EventCard({ event, onPress }) {
       </View>
       <View style={styles.footerRow}>
         <Text style={styles.meta}>° Seats [1]</Text>
-        <Pressable onPress={onPress} style={styles.button}>
-          <Text>Reserve</Text>
+        <Pressable
+          onPress={onReserve}
+          disabled={isReserved}
+          style={[
+            styles.button,
+            isReserved && { backgroundColor: "#95d5b2" }
+          ]}
+        >
+          <Text>
+            {isReserved ? "Reservado" : "Reserve"}
+          </Text>
         </Pressable>
       </View>
       

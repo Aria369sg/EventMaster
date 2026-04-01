@@ -5,6 +5,7 @@ export default function useEventsViewModel() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [reserved, setReserved] = useState([])
 
   useEffect(() => {
     const loadEvents = async () => {
@@ -22,9 +23,26 @@ export default function useEventsViewModel() {
     loadEvents();
   }, []);
 
+  const reserveEvent = async (id) =>{
+    if (reserved.includes(id)) return;
+
+    setReserved((prev) => [...prev, id]);
+
+    try {
+      // api
+    } catch (error) {
+      setReserved((prev) =>
+        prev.filter((itemId) => itemId !== id)
+      );
+
+    }
+  }
+
   return {
     events,
     loading,
     error,
+    reserveEvent,
+    reserved
   };
 }

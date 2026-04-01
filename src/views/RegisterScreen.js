@@ -19,23 +19,25 @@ export default function RegisterScreen({ navigation }) {
 
   return (
     <ScreenContainer scrollable>
-      <View style={styles.wrapper}>
+      <View>
         <SectionHeader
-          title="Registro"
-          subtitle="Pantalla mock para validar el flujo de alta mientras llega la API."
+          title="Register"
         />
+      </View>
+      <View style={styles.card}>
+
 
         <FormInput
-          label="Nombre"
-          placeholder="Tu nombre completo"
+          label="Name"
+          placeholder="Full Name"
           value={form.name}
           onChangeText={(value) => handleChange("name", value)}
           error={errors.name}
         />
 
         <FormInput
-          label="Correo"
-          placeholder="correo@ejemplo.com"
+          label="Email"
+          placeholder="email@example.com"
           autoCapitalize="none"
           autoCorrect={false}
           keyboardType="email-address"
@@ -45,8 +47,8 @@ export default function RegisterScreen({ navigation }) {
         />
 
         <FormInput
-          label="Contrasena"
-          placeholder="Minimo 6 caracteres"
+          label="Password"
+          placeholder="At least 6 characters"
           secureTextEntry
           value={form.password}
           onChangeText={(value) => handleChange("password", value)}
@@ -56,15 +58,18 @@ export default function RegisterScreen({ navigation }) {
         {successMessage ? (
           <Text style={styles.successText}>{successMessage}</Text>
         ) : null}
-
+      
+        
+      </View>
+      <View style={styles.wrapperBottom}>
         <PrimaryButton
-          title="Crear cuenta"
+          title="Register"
           onPress={handleRegister}
           loading={loading}
         />
 
         <Text style={styles.linkText} onPress={() => navigation.navigate("Login")}>
-          Ya tengo cuenta
+          Already have an account? Login
         </Text>
       </View>
     </ScreenContainer>
@@ -86,5 +91,18 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#2D6A4F",
     fontWeight: "600",
+  },
+   card: {
+    padding: 16,
+    borderRadius: 14,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#D9E4D6",
+    marginBottom: 14,
+  },
+  wrapperBottom:{
+    justifyContent: 'flex-end',
+    flex: 1,
+    marginBottom: 25
   },
 });

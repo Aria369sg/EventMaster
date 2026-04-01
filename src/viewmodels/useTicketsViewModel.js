@@ -8,7 +8,16 @@ export default function useTicketsViewModel() {
     setTickets(mockTickets);
   }, []);
 
+  const cancelTicket = (ticketId) => {
+    setTickets((prev)=>
+      prev.filter((ticket) => ticket.id !== ticketId)
+    );
+
+    //api
+  }
+
   return {
     tickets,
+    cancelTicket
   };
 }

@@ -2,11 +2,9 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import BrandHeaderTitle from "../components/BrandHeaderTitle";
 import EventsScreen from "../views/EventsScreen";
-import EventDetailScreen from "../views/EventDetailScreen";
 import HomeScreen from "../views/HomeScreen";
 import LoginScreen from "../views/LoginScreen";
 import RegisterScreen from "../views/RegisterScreen";
-import ReservationSuccessScreen from "../views/ReservationSuccessScreen";
 import UserHomeScreen from "../views/UserHomeScreen";
 import UserEventsScreen from "../views/UserEventsScreen";
 import UserTicketsScreen from "../views/UserTicketsScreen";
@@ -47,16 +45,8 @@ export default function AppNavigator() {
         <Stack.Screen name="AdminEvents" component={AdminEventsScreen} />
         <Stack.Screen name="AdminProfile" component={AdminProfileScreen} />
         <Stack.Screen name="Events" component={EventsScreen} />
-        <Stack.Screen
-          name="EventDetail"
-          component={EventDetailScreen}
-          options={{ title: "Detalle del evento" }}
-        />
-        <Stack.Screen
-          name="ReservationSuccess"
-          component={ReservationSuccessScreen}
-          options={{ title: "Reservacion" }}
-        />
+        
+
       </Stack.Navigator>
     </NavigationContainer>
   );

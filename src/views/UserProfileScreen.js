@@ -51,8 +51,8 @@ export default function UserProfileScreen({ navigation }) {
                   text={user?.email || "Email"}
                 />
               </View>
-              <ProfileField label="Settings" value={'Settings'} />
-              <ProfileField label="My Information" value={'My Information '} />
+              <ProfileField label="Nombre" value={user?.name || "No disponible"} />
+              <ProfileField label="Rol" value={user?.role || "user"} />
               
               
             </View>
@@ -60,7 +60,7 @@ export default function UserProfileScreen({ navigation }) {
           )}
         </View>
         <View style={styles.wrapperBottom}>
-              <PrimaryButton title="Cerrar sesion" onPress={handleLogout} />
+              <PrimaryButton title="Logout" onPress={handleLogout} />
         </View>
         <BottomNavBar
           items={navItems}
