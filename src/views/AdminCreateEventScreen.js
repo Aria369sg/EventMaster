@@ -1,4 +1,6 @@
 import { StyleSheet, View } from "react-native";
+import { useEffect, useState } from "react";
+import AppDialog from "../components/AppDialog";
 import BottomNavBar from "../components/BottomNavBar";
 import FormInput from "../components/FormInput";
 import PrimaryButton from "../components/PrimaryButton";
@@ -6,13 +8,13 @@ import ScreenContainer from "../components/ScreenContainer";
 import SectionHeader from "../components/SectionHeader";
 import { useForm } from "../hooks/useForm";
 import useEventsViewModel from "../viewmodels/useEventsViewModel";
-import { useEffect } from "react";
+import { COLORS } from "../models/theme";
 
 const navItems = [
   { key: "dashboard", label: "Dashboard", route: "AdminDashboard" },
-  { key: "create", label: "Crear", route: "AdminCreateEvent" },
-  { key: "events", label: "Eventos", route: "AdminEvents" },
-  { key: "profile", label: "Perfil", route: "AdminProfile" },
+  { key: "create", label: "Add event", route: "AdminCreateEvent" },
+  { key: "events", label: "Events", route: "AdminEvents" },
+  { key: "profile", label: "Profile", route: "AdminProfile" },
 ];
 const initialValues = {
   name: "",
@@ -25,6 +27,8 @@ export default function AdminCreateEventScreen({ navigation, route }) {
   const event = route?.params?.event;
   const isEdit = !!event;
   const { editEvent, createEvent } = useEventsViewModel();
+  const [dialogMessage, setDialogMessage] = useState("");
+  const [dialogTone, setDialogTone] = useState("success");
   
 
   const { form, handleChange, setForm } = useForm(initialValues);
@@ -84,14 +88,26 @@ export default function AdminCreateEventScreen({ navigation, route }) {
 
               if (isEdit) {
                 editEvent(event.id, payload);
+                setDialogTone("success");
+                setDialogMessage("Evento actualizado con éxito");
               } else {
                 createEvent(payload);
+                setDialogTone("success");
+                setDialogMessage("Evento creado con éxito");
               }
-
-              navigation.goBack();
             }} />
           </View>
         </View>
+
+        <AppDialog
+          visible={Boolean(dialogMessage)}
+          message={dialogMessage}
+          tone={dialogTone}
+          onConfirm={() => {
+            setDialogMessage("");
+            navigation.goBack();
+          }}
+        />
 
         <BottomNavBar
           items={navItems}
@@ -113,8 +129,8 @@ const styles = StyleSheet.create({
   formCard: {
     padding: 18,
     borderRadius: 14,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     borderWidth: 1,
-    borderColor: "#D9E4D6",
+    borderColor: COLORS.border,
   },
 });

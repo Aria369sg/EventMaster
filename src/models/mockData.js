@@ -21,6 +21,7 @@ export const mockEvents = [
     name: "Feria de productos organicos",
     date: "2026-04-02 10:00",
     capacity: 120,
+    seatsLeft: 1,
     location: "Centro Verde",
     description:
       "Un espacio para conocer productores locales, alimentos frescos y opciones sustentables.",
@@ -30,6 +31,7 @@ export const mockEvents = [
     name: "Taller de compostaje en casa",
     date: "2026-04-03 16:30",
     capacity: 40,
+    seatsLeft: 0,
     location: "Aula Comunitaria",
     description:
       "Sesion practica para aprender a separar residuos y crear composta desde casa.",
@@ -39,6 +41,7 @@ export const mockEvents = [
     name: "Mercado local de temporada",
     date: "2026-04-05 09:00",
     capacity: 200,
+    seatsLeft: 1,
     location: "Plaza Principal",
     description:
       "Mercado comunitario con frutas, verduras, conservas y productos de temporada.",

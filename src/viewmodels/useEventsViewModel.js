@@ -25,16 +25,36 @@ export default function useEventsViewModel() {
 
   const reserveEvent = async (id) =>{
     if (reserved.includes(id)) return;
+    const selectedEvent = events.find((event) => event.id === id);
+
+    if ((selectedEvent?.seatsLeft ?? 1) <= 0) {
+      return false;
+    }
 
     setReserved((prev) => [...prev, id]);
+    setEvents((prev) =>
+      prev.map((event) =>
+        event.id === id
+          ? { ...event, seatsLeft: Math.max((event.seatsLeft ?? 1) - 1, 0) }
+          : event,
+      ),
+    );
 
     try {
       // api
+      return true;
     } catch (error) {
+      setEvents((prev) =>
+        prev.map((event) =>
+          event.id === id
+            ? { ...event, seatsLeft: (event.seatsLeft ?? 0) + 1 }
+            : event,
+        ),
+      );
       setReserved((prev) =>
         prev.filter((itemId) => itemId !== id)
       );
-
+      return false;
     }
   }
 
@@ -62,7 +82,7 @@ export default function useEventsViewModel() {
 
     setEvents((prev) => [
       ...prev,
-      { id: newId, ...newEvent }
+      { id: newId, seatsLeft: Number(newEvent.capacity) || 0, ...newEvent }
     ]);
   };
 

@@ -1,0 +1,18 @@
+export const COLORS = {
+  screen: "#111111",
+  surface: "#1F1F1F",
+  surfaceMuted: "#2B2B2B",
+  surfaceSoft: "#343434",
+  surfaceRaised: "#3F3F3F",
+  border: "#4A4A4A",
+  text: "#F4F4F4",
+  textMuted: "#B8B8B8",
+  accent: "#9B3DF0",
+  accentPressed: "#8428D6",
+  accentSoft: "#C084FC",
+  success: "#22C55E",
+  danger: "#FF5C5C",
+  dangerSoft: "#3A1D1D",
+  input: "#202020",
+  card: "#262626",
+};

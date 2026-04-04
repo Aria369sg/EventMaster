@@ -1,22 +1,23 @@
 import { FlatList, StyleSheet, Text, View, Image, Pressable } from "react-native";
+import { useState } from "react";
+import AppDialog from "../components/AppDialog";
 import BottomNavBar from "../components/BottomNavBar";
-import ProfileField from "../components/ProfileField";
+import EventInfoRow from "../components/EventInfoRow";
 import ScreenContainer from "../components/ScreenContainer";
 import useTicketsViewModel from "../viewmodels/useTicketsViewModel";
 import TextInformative from "../components/TextInformative";
+import { COLORS } from "../models/theme";
 
 
 const navItems = [
   { key: "home", label: "Home", route: "UserHome" },
-  { key: "events", label: "Eventos", route: "UserEvents" },
-  { key: "tickets", label: "Tickets", route: "UserTickets" },
-  { key: "profile", label: "Perfil", route: "UserProfile" },
+  { key: "events", label: "Events", route: "UserEvents" },
+  { key: "tickets", label: "My tickets", route: "UserTickets" },
+  { key: "profile", label: "Profile", route: "UserProfile" },
 ];
 
 function TicketCard({ ticket, onPress }) {
   return (
-
-    
     <View style={styles.ticketCard}>
       <View style={styles.row}>
         <Image
@@ -25,14 +26,14 @@ function TicketCard({ ticket, onPress }) {
         />
         <View style={styles.content}>
           <Text style={styles.ticketTitle}>{ticket.title}</Text>
-          <ProfileField label="Fecha" value={ticket.date} />
-          <ProfileField label="Lugar" value={ticket.location} />
-          <ProfileField label="Asientos" value={ticket.seats.toString()} />
+          <EventInfoRow type="date" text={ticket.date} />
+          <EventInfoRow type="location" text={ticket.location} />
+          <EventInfoRow type="ticket" text={`${ticket.seats.toString()} people`} />
         </View>
       </View>
       <View style={styles.footerRow}>
         <Pressable onPress={onPress} style={styles.button}>
-          <Text>Cancel</Text>
+          <Text style={styles.buttonLabel}>Cancel</Text>
         </Pressable>
       </View>      
     </View>
@@ -41,13 +42,15 @@ function TicketCard({ ticket, onPress }) {
 
 export default function UserTicketsScreen({ navigation }) {
   const { tickets, cancelTicket } = useTicketsViewModel();
+  const [ticketToCancel, setTicketToCancel] = useState(null);
+
+  const handleCancel = (ticket) => {
+    setTicketToCancel(ticket);
+  };
 
   return (
     <ScreenContainer>
-      <TextInformative
-        text="My reservations"
-        
-      />
+      <TextInformative text="My reservations" />
 
       <FlatList
         data={tickets}
@@ -55,10 +58,25 @@ export default function UserTicketsScreen({ navigation }) {
         renderItem={({ item }) => (
           <TicketCard
             ticket={item}
-            onPress={() => cancelTicket(item.id)}
+            onPress={() => handleCancel(item)}
           />
         )}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.listContent}
+      />
+
+      <AppDialog
+        visible={Boolean(ticketToCancel)}
+        message="¿Está seguro que desea cancelar su reservación?"
+        confirmLabel="Aceptar"
+        onConfirm={() => {
+          if (ticketToCancel) {
+            cancelTicket(ticketToCancel.id);
+          }
+          setTicketToCancel(null);
+        }}
+        onCancel={() => setTicketToCancel(null)}
+        cancelLabel="Cancelar"
       />
 
       <BottomNavBar
@@ -71,54 +89,60 @@ export default function UserTicketsScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  listContent: {
+    paddingBottom: 6,
+  },
   ticketCard: {
-    marginBottom: 16,
-    padding: 16,
-    borderRadius: 14,
-    backgroundColor: "#FFFFFF",
+    marginBottom: 12,
+    padding: 14,
+    borderRadius: 12,
+    backgroundColor: COLORS.surfaceMuted,
     borderWidth: 1,
-    borderColor: "#D9E4D6",
+    borderColor: COLORS.border,
   },
   ticketTitle: {
-    fontSize: 17,
+    fontSize: 14,
     fontWeight: "700",
-    color: "#163020",
-    marginBottom: 12,
+    color: COLORS.text,
+    marginBottom: 6,
   },
   row: {
     flexDirection: "row",
     alignItems: "flex-start",
-    marginBottom: 12,
+    marginBottom: 10,
   },
   content: {
     flex: 1,
   },
   image: {
-    width: 80,
-    height: 80,
-    borderRadius: 10,
-    marginRight: 12,
-    backgroundColor: "#EDEDED",
+    width: 62,
+    height: 62,
+    borderRadius: 8,
+    marginRight: 10,
+    backgroundColor: COLORS.surfaceSoft,
   },
   footerRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-end",
     alignItems: "center",
-    marginTop: 8,
-    alignSelf: "flex-end",
+    marginTop: 2,
   },
   meta: {
-    fontSize: 14,
-    color: "#4A5C4D",
-    marginBottom: 4,
-    padding: 4
+    fontSize: 12,
+    color: COLORS.textMuted,
+    marginBottom: 2,
   },
   button: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 14,
-    backgroundColor: "#FFFFFF",
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    backgroundColor: COLORS.accent,
     borderWidth: 1,
-    borderColor: "#D9E4D6",
+    borderColor: COLORS.accent,
+  },
+  buttonLabel: {
+    color: COLORS.text,
+    fontWeight: "600",
+    fontSize: 11,
   },
 });

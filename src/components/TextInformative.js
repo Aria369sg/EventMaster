@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
+import { COLORS } from "../models/theme";
 
 export default function TextInformative({ text }) {
   return (
@@ -16,6 +17,6 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#163020",
+    color: COLORS.text,
   }
 });

@@ -1,4 +1,6 @@
 import { ActivityIndicator, StyleSheet, View, Image, Text } from "react-native";
+import { useState } from "react";
+import AppDialog from "../components/AppDialog";
 import BottomNavBar from "../components/BottomNavBar";
 import ProfileField from "../components/ProfileField";
 import PrimaryButton from "../components/PrimaryButton";
@@ -6,23 +8,21 @@ import ScreenContainer from "../components/ScreenContainer";
 import SectionHeader from "../components/SectionHeader";
 import useSessionViewModel from "../viewmodels/useSessionViewModel";
 import TextInformative from "../components/TextInformative";
+import { COLORS } from "../models/theme";
 
 const navItems = [
   { key: "dashboard", label: "Dashboard", route: "AdminDashboard" },
-  { key: "create", label: "Crear", route: "AdminCreateEvent" },
-  { key: "events", label: "Eventos", route: "AdminEvents" },
-  { key: "profile", label: "Perfil", route: "AdminProfile" },
+  { key: "create", label: "Add event", route: "AdminCreateEvent" },
+  { key: "events", label: "Events", route: "AdminEvents" },
+  { key: "profile", label: "Profile", route: "AdminProfile" },
 ];
 
 export default function AdminProfileScreen({ navigation }) {
   const { user, loading, logout } = useSessionViewModel();
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
   const handleLogout = async () => {
-    await logout();
-    navigation.reset({
-      index: 0,
-      routes: [{ name: "Login" }],
-    });
+    setShowLogoutDialog(true);
   };
 
   return (
@@ -33,7 +33,7 @@ export default function AdminProfileScreen({ navigation }) {
     
               {loading ? (
                 <View style={styles.centered}>
-                  <ActivityIndicator size="large" color="#2D6A4F" />
+                  <ActivityIndicator size="large" color={COLORS.accent} />
                 </View>
               ) : (
                 
@@ -64,6 +64,23 @@ export default function AdminProfileScreen({ navigation }) {
               </Text>
                   <PrimaryButton title="Logout" onPress={handleLogout} />
             </View>
+
+            <AppDialog
+              visible={showLogoutDialog}
+              message="¿Está seguro que desea salir de su cuenta?"
+              confirmLabel="Aceptar"
+              cancelLabel="Cancelar"
+              onConfirm={async () => {
+                setShowLogoutDialog(false);
+                await logout();
+                navigation.reset({
+                  index: 0,
+                  routes: [{ name: "Home" }],
+                });
+              }}
+              onCancel={() => setShowLogoutDialog(false)}
+              tone="error"
+            />
             
             <BottomNavBar 
               items={navItems}
@@ -90,9 +107,9 @@ const styles = StyleSheet.create({
   card: {
     padding: 18,
     borderRadius: 14,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     borderWidth: 1,
-    borderColor: "#D9E4D6",
+    borderColor: COLORS.border,
   },
   avatar: {
     width: 100,
@@ -115,7 +132,7 @@ const styles = StyleSheet.create({
   linkText: {
     marginTop: 18,
     textAlign: "center",
-    color: "#2D6A4F",
+    color: COLORS.accent,
     fontWeight: "600",
     bottom:20
   },

@@ -1,12 +1,13 @@
 import { StyleSheet, Text, View } from "react-native";
+import AppAlert from "../components/AppAlert";
 import FormInput from "../components/FormInput";
 import PrimaryButton from "../components/PrimaryButton";
 import ScreenContainer from "../components/ScreenContainer";
 import SectionHeader from "../components/SectionHeader";
 import useLoginViewModel from "../viewmodels/useLoginViewModel";
+import { COLORS } from "../models/theme";
 
 export default function LoginScreen({ navigation }) {
-  // La vista solo consume el estado y acciones expuestas por el ViewModel.
   const {
     form,
     errors,
@@ -18,7 +19,6 @@ export default function LoginScreen({ navigation }) {
   } = useLoginViewModel();
 
   const handleLogin = async () => {
-    // Si el login fue exitoso, se reemplaza la pila para que Login no quede atras.
     const response = await submitLogin();
 
     if (response) {
@@ -34,89 +34,98 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <ScreenContainer scrollable>
-      <View>
-        <SectionHeader
-          title="Login"
-          
-        />
-      </View>
-      <View style={styles.card}>
-        
+      <View style={styles.page}>
+        <View style={styles.contentBlock}>
+          <View style={styles.headerWrapper}>
+            <SectionHeader title="Inicia sesión aquí" />
+          </View>
 
-        <FormInput
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType="email-address"
-          label="email"
-          onChangeText={(value) => handleChange("email", value)}
-          placeholder="email@example.com"
-          value={form.email}
-          error={errors.email}
-        />
+          <View style={styles.card}>
+            <FormInput
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="email-address"
+              label="Email"
+              onChangeText={(value) => handleChange("email", value)}
+              placeholder="email@example.com"
+              value={form.email}
+              error={errors.email}
+            />
 
-        <FormInput
-          label="Password"
-          onChangeText={(value) => handleChange("password", value)}
-          placeholder="Password"
-          secureTextEntry
-          value={form.password}
-          error={errors.password}
-        />
+            <FormInput
+              label="Password"
+              onChangeText={(value) => handleChange("password", value)}
+              placeholder="Password"
+              secureTextEntry
+              value={form.password}
+              error={errors.password}
+            />
 
-        {submitError ? <Text style={styles.errorText}>{submitError}</Text> : null}
-        {successMessage ? (
-          <Text style={styles.successText}>{successMessage}</Text>
-        ) : null}
-        
-        
-      </View>
-      <View style={styles.wrapperBottom}>
-        <PrimaryButton
-          title="Login"
-          onPress={handleLogin}
-          loading={loading}
-        />
+            <AppAlert message={submitError} />
+            <AppAlert message={successMessage} tone="success" />
+          </View>
+        </View>
 
-        <Text style={styles.linkText} onPress={() => navigation.navigate("Register")}>
-          Register
-        </Text>
+        <View style={styles.wrapperBottom}>
+          <View style={styles.buttonWrap}>
+            <PrimaryButton title="Login" onPress={handleLogin} loading={loading} />
+          </View>
+
+          <Text style={styles.accountText}>
+            Don't have an account?{" "}
+            <Text
+              style={styles.linkText}
+              onPress={() => navigation.navigate("Register")}
+            >
+              Register
+            </Text>
+          </Text>
+        </View>
       </View>
     </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
+  page: {
     flex: 1,
-    justifyContent: 'flex-start',
+    justifyContent: "center",
   },
-  errorText: {
-    marginBottom: 16,
-    fontSize: 14,
-    color: "#B3261E",
+  contentBlock: {
+    width: "100%",
+    maxWidth: 360,
+    alignSelf: "center",
   },
-  successText: {
-    marginBottom: 16,
-    fontSize: 14,
-    color: "#2D6A4F",
+  headerWrapper: {
+    alignItems: "center",
+    marginBottom: 10,
   },
-  linkText: {
+  accountText: {
     marginTop: 18,
     textAlign: "center",
-    color: "#2D6A4F",
+    color: COLORS.text,
+    fontSize: 15,
+  },
+  linkText: {
+    color: COLORS.accent,
     fontWeight: "600",
   },
-  wrapperBottom:{
-    justifyContent: 'flex-end',
-    flex: 1,
-    marginBottom: 25
-  },
-   card: {
-    padding: 16,
-    borderRadius: 14,
-    backgroundColor: "#FFFFFF",
+  card: {
+    padding: 22,
+    borderRadius: 18,
+    backgroundColor: COLORS.card,
     borderWidth: 1,
-    borderColor: "#D9E4D6",
-    marginBottom: 14,
-  }
+    borderColor: COLORS.border,
+  },
+  wrapperBottom: {
+    width: "100%",
+    maxWidth: 360,
+    alignSelf: "center",
+    marginTop: 28,
+    marginBottom: 12,
+  },
+  buttonWrap: {
+    width: 120,
+    alignSelf: "center",
+  },
 });

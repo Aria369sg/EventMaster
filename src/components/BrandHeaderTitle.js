@@ -1,4 +1,5 @@
 import { Image, StyleSheet, Text, View } from "react-native";
+import { COLORS } from "../models/theme";
 
 export default function BrandHeaderTitle() {
   return (
@@ -23,6 +24,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#163020",
+    color: COLORS.text,
   },
 });

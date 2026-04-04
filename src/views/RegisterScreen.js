@@ -1,15 +1,37 @@
-import { StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { useEffect } from "react";
+import AppAlert from "../components/AppAlert";
 import FormInput from "../components/FormInput";
 import PrimaryButton from "../components/PrimaryButton";
 import ScreenContainer from "../components/ScreenContainer";
 import SectionHeader from "../components/SectionHeader";
+import useSessionViewModel from "../viewmodels/useSessionViewModel";
 import useRegisterViewModel from "../viewmodels/useRegisterViewModel";
+import { COLORS } from "../models/theme";
 
 export default function RegisterScreen({ navigation , route}) {
   const isAdmin = route?.params?.isAdmin || false;
+  const { user, loading: sessionLoading } = useSessionViewModel();
   
-  const { form, errors, loading, successMessage, handleChange, submitRegister } =
-    useRegisterViewModel();
+  const {
+    form,
+    errors,
+    loading,
+    submitError,
+    successMessage,
+    handleChange,
+    submitRegister,
+  } = useRegisterViewModel(isAdmin);
+
+  useEffect(() => {
+    if (!isAdmin || sessionLoading) {
+      return;
+    }
+
+    if (user?.role !== "admin") {
+      navigation.replace("Login");
+    }
+  }, [isAdmin, navigation, sessionLoading, user]);
 
   const handleRegister = async () => {
     const ok = await submitRegister();
@@ -19,96 +41,135 @@ export default function RegisterScreen({ navigation , route}) {
     }
   };
 
+  if (isAdmin && sessionLoading) {
+    return (
+      <ScreenContainer>
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color={COLORS.accent} />
+        </View>
+      </ScreenContainer>
+    );
+  }
+
+  if (isAdmin && user?.role !== "admin") {
+    return null;
+  }
+
   return (
     <ScreenContainer scrollable>
-      <View>
-        <SectionHeader
-          title={isAdmin ? 'Register Admin' : 'Register'}
-        />
-      </View>
-      <View style={styles.card}>
+      <View style={styles.page}>
+        <View style={styles.contentBlock}>
+          <View style={styles.headerWrapper}>
+            <SectionHeader
+              title={isAdmin ? "Regístrate aquí" : "Regístrate aquí"}
+            />
+          </View>
 
+          <View style={styles.card}>
+            <FormInput
+              label="Name"
+              placeholder="Full Name"
+              value={form.name}
+              onChangeText={(value) => handleChange("name", value)}
+              error={errors.name}
+            />
 
-        <FormInput
-          label="Name"
-          placeholder="Full Name"
-          value={form.name}
-          onChangeText={(value) => handleChange("name", value)}
-          error={errors.name}
-        />
+            <FormInput
+              label="Email"
+              placeholder="email@example.com"
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="email-address"
+              value={form.email}
+              onChangeText={(value) => handleChange("email", value)}
+              error={errors.email}
+            />
 
-        <FormInput
-          label="Email"
-          placeholder="email@example.com"
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType="email-address"
-          value={form.email}
-          onChangeText={(value) => handleChange("email", value)}
-          error={errors.email}
-        />
+            <FormInput
+              label="Password"
+              placeholder="At least 6 characters"
+              secureTextEntry
+              value={form.password}
+              onChangeText={(value) => handleChange("password", value)}
+              error={errors.password}
+            />
 
-        <FormInput
-          label="Password"
-          placeholder="At least 6 characters"
-          secureTextEntry
-          value={form.password}
-          onChangeText={(value) => handleChange("password", value)}
-          error={errors.password}
-        />
+            <AppAlert message={submitError} />
+            <AppAlert message={successMessage} tone="success" />
+          </View>
+        </View>
 
-        {successMessage ? (
-          <Text style={styles.successText}>{successMessage}</Text>
-        ) : null}
-      
-        
-      </View>
-      <View style={styles.wrapperBottom}>
-        <PrimaryButton
-          title="Register"
-          onPress={handleRegister}
-          loading={loading}
-        />
+        <View style={styles.wrapperBottom}>
+          <View style={styles.buttonWrap}>
+            <PrimaryButton
+              title="Register"
+              onPress={handleRegister}
+              loading={loading}
+            />
+          </View>
 
-        {!isAdmin && (
-          <Text style={styles.linkText} onPress={() => navigation.navigate("Login")}>
-          Already have an account? Login
-        </Text>
-        )}
-
-        
+          {!isAdmin && (
+            <Text style={styles.accountText}>
+              Already have an account?{" "}
+              <Text
+                style={styles.linkText}
+                onPress={() => navigation.navigate("Login")}
+              >
+                Login
+              </Text>
+            </Text>
+          )}
+        </View>
       </View>
     </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
+  page: {
     flex: 1,
     justifyContent: "center",
   },
-  successText: {
-    marginBottom: 16,
-    fontSize: 14,
-    color: "#2D6A4F",
+  centered: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  linkText: {
+  contentBlock: {
+    width: "100%",
+    maxWidth: 360,
+    alignSelf: "center",
+  },
+  headerWrapper: {
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  accountText: {
     marginTop: 18,
     textAlign: "center",
-    color: "#2D6A4F",
+    color: COLORS.text,
+    fontSize: 15,
+  },
+  linkText: {
+    color: COLORS.accent,
     fontWeight: "600",
   },
-   card: {
-    padding: 16,
-    borderRadius: 14,
-    backgroundColor: "#FFFFFF",
+  card: {
+    padding: 22,
+    borderRadius: 18,
+    backgroundColor: COLORS.card,
     borderWidth: 1,
-    borderColor: "#D9E4D6",
-    marginBottom: 14,
+    borderColor: COLORS.border,
   },
-  wrapperBottom:{
-    justifyContent: 'flex-end',
-    flex: 1,
-    marginBottom: 25
+  wrapperBottom: {
+    width: "100%",
+    maxWidth: 360,
+    alignSelf: "center",
+    marginTop: 28,
+    marginBottom: 12,
+  },
+  buttonWrap: {
+    width: 120,
+    alignSelf: "center",
   },
 });
