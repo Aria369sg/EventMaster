@@ -1,5 +1,5 @@
 import { FlatList, StyleSheet, Text, View, Image, Pressable } from "react-native";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import AppDialog from "../components/AppDialog";
 import BottomNavBar from "../components/BottomNavBar";
 import EventInfoRow from "../components/EventInfoRow";
@@ -7,6 +7,7 @@ import ScreenContainer from "../components/ScreenContainer";
 import useTicketsViewModel from "../viewmodels/useTicketsViewModel";
 import TextInformative from "../components/TextInformative";
 import { COLORS } from "../models/theme";
+import { useFocusEffect } from "@react-navigation/native";
 
 
 const navItems = [
@@ -41,16 +42,30 @@ function TicketCard({ ticket, onPress }) {
 }
 
 export default function UserTicketsScreen({ navigation }) {
-  const { tickets, cancelTicket } = useTicketsViewModel();
+  const { tickets, cancelTicket, loading, reload } = useTicketsViewModel();
   const [ticketToCancel, setTicketToCancel] = useState(null);
 
   const handleCancel = (ticket) => {
     setTicketToCancel(ticket);
   };
 
+  useFocusEffect(
+    useCallback(() => {
+      reload();
+    }, [])
+  );
+  if (loading) {
+    return (
+      <ScreenContainer>
+        <Text>Cargando reservaciones...</Text>
+      </ScreenContainer>
+    );
+  }
   return (
+    
     <ScreenContainer>
       <TextInformative text="My reservations" />
+      
 
       <FlatList
         data={tickets}
@@ -69,9 +84,9 @@ export default function UserTicketsScreen({ navigation }) {
         visible={Boolean(ticketToCancel)}
         message="¿Está seguro que desea cancelar su reservación?"
         confirmLabel="Aceptar"
-        onConfirm={() => {
+        onConfirm={async () => {
           if (ticketToCancel) {
-            cancelTicket(ticketToCancel.id);
+            await cancelTicket(ticketToCancel.id);
           }
           setTicketToCancel(null);
         }}

@@ -1,4 +1,4 @@
 export const APP_CONFIG = {
-  useMockAuth: true,
+  useMockAuth: false,
   useMockData: true,
 };

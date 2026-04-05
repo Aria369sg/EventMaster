@@ -5,8 +5,8 @@ import { useForm } from "../hooks/useForm";
 import { saveToken } from "../helpers/tokenStorage";
 import { APP_CONFIG } from "../models/appConfig";
 import { STORAGE_KEYS } from "../models/storageKeys";
-import { loginUser } from "../services/authService";
-import { loginWithMock } from "../services/mockAuthService";
+import { loginUser, loginAdmin } from "../services/authService";
+import { jwtDecode } from "jwt-decode";
 
 const loginInitialValues = {
   email: "",
@@ -53,41 +53,68 @@ export default function useLoginViewModel() {
   const [successMessage, setSuccessMessage] = useState("");
 
   const submitLogin = async () => {
-    setSubmitError("");
-    setSuccessMessage("");
+  setSubmitError("");
+  setSuccessMessage("");
 
-    // Antes de consumir el servicio, valida todos los campos del formulario.
-    if (!validateForm()) {
-      return false;
-    }
+  if (!validateForm()) {
+    return false;
+  }
+
+  try {
+    setLoading(true);
+
+    const isMock = APP_CONFIG.useMockAuth;
+    let response = null;
+    let roleDetected = null;
 
     try {
-      setLoading(true);
-      // Esta decision permite cambiar entre mock y API real sin tocar la vista.
-      const authService = APP_CONFIG.useMockAuth ? loginWithMock : loginUser;
-      const response = await authService(form);
-
-      if (response?.token) {
-        await saveToken(response.token);
+      response = await loginUser(form);
+      roleDetected = "user";
+    } catch (errorUser) {
+      try {
+        response = await loginAdmin(form);
+        roleDetected = "admin";
+      } catch (errorAdmin) {
+        throw errorAdmin;
       }
+    }
 
-      // Guardamos tambien el perfil para usarlo en pantallas como Home.
-      if (response?.user) {
-        await saveItem(STORAGE_KEYS.userProfile, response.user);
-      }
+    if (response?.token) {
+      await saveToken(response.token);
 
-      await saveItem(STORAGE_KEYS.authMode, "mock");
+      const decoded = jwtDecode(response.token);
 
-      setSuccessMessage(response?.message || "Login exitoso.");
-      resetForm();
-      return response;
-    } catch (error) {
+      const user = {
+        id: decoded.id,
+        email: decoded.email,
+        role: roleDetected || decoded.role,
+        name: decoded.email.split("@")[0],
+      };
+
+      await saveItem(STORAGE_KEYS.userProfile, user);
+
+      return { ...response, user };
+    }
+
+    await saveItem(STORAGE_KEYS.authMode, isMock ? "mock" : "api");
+
+    setSuccessMessage(response?.message || "Login exitoso.");
+    resetForm();
+
+    return response;
+
+  } catch (error) {
+      console.log("ERROR COMPLETO:", error);
+      console.log("ERROR RESPONSE:", error?.response);
+      console.log("ERROR DATA:", error?.response?.data);
+
       setSubmitError(getErrorMessage(error));
+
       return false;
     } finally {
-      setLoading(false);
-    }
-  };
+    setLoading(false);
+  }
+};
 
   return {
     form,

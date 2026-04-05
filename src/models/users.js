@@ -1,4 +1,3 @@
-// localhost:33030/api/users/getUsers
 
 import axios from 'axios';
 import { getToken } from '../helpers/tokenStorage';

@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { getMockEvents } from "../services/mockEventService";
+import {getAllEvents, createEvent as createEventAPI, deleteEvent as deleteEventAPI, updateEvent as updateEventAPI} from "../services/eventService"
+import { createReservation } from "../services/reservationsService";
+import { getUserIdFromToken } from "../helpers/StorageService";
 
 export default function useEventsViewModel() {
   const [events, setEvents] = useState([]);
@@ -11,8 +13,20 @@ export default function useEventsViewModel() {
     const loadEvents = async () => {
       try {
         setLoading(true);
-        const response = await getMockEvents();
-        setEvents(response);
+        const response = await getAllEvents();
+
+        const mappedEvents = response.map((event) => ({
+          id: event._id,
+          name: event.name,
+          description: event.description,
+          date: event.date,
+          location: event.location,
+          capacity: event.capacity,
+          seatsLeft: event.availableSeats,
+          status: event.status,
+        }));
+
+        setEvents(mappedEvents);
       } catch (err) {
         setError("No fue posible cargar los eventos.");
       } finally {
@@ -23,8 +37,11 @@ export default function useEventsViewModel() {
     loadEvents();
   }, []);
 
-  const reserveEvent = async (id) =>{
+  const reserveEvent = async (id) => {
     if (reserved.includes(id)) return;
+    const userId = await getUserIdFromToken();
+
+
     const selectedEvent = events.find((event) => event.id === id);
 
     if ((selectedEvent?.seatsLeft ?? 1) <= 0) {
@@ -35,38 +52,52 @@ export default function useEventsViewModel() {
     setEvents((prev) =>
       prev.map((event) =>
         event.id === id
-          ? { ...event, seatsLeft: Math.max((event.seatsLeft ?? 1) - 1, 0) }
-          : event,
-      ),
+          ? { ...event, seatsLeft: Math.max(event.seatsLeft - 1, 0) }
+          : event
+      )
     );
 
     try {
-      // api
+      await createReservation({
+        idUser: userId,
+        idEvent: id,
+        seats: 1,
+      });
+
       return true;
     } catch (error) {
+      console.log("ERROR RESERVA FULL:", JSON.stringify(error.response?.data, null, 2));
+      console.log("STATUS:", error.response?.status);
+
       setEvents((prev) =>
         prev.map((event) =>
           event.id === id
-            ? { ...event, seatsLeft: (event.seatsLeft ?? 0) + 1 }
-            : event,
-        ),
+            ? { ...event, seatsLeft: event.seatsLeft + 1 }
+            : event
+        )
       );
+
       setReserved((prev) =>
         prev.filter((itemId) => itemId !== id)
       );
+
       return false;
     }
-  }
-
-  const deleteEvent = (eventId) => {
-  setEvents((prev) =>
-    prev.filter((event) => event.id !== eventId)
-  );
-
-    //api
   };
 
-  const editEvent = (eventId, updatedData) => {
+  const deleteEvent = async (eventId) => {
+    setEvents((prev) =>
+      prev.filter((event) => event.id !== eventId)
+    );
+
+    try {
+      await deleteEventAPI(eventId);
+    } catch (error) {
+      console.log("ERROR DELETE:", error);
+    }
+  };
+
+  const editEvent = async (eventId, updatedData) => {
     setEvents((prev) =>
       prev.map((event) =>
         event.id === eventId
@@ -74,16 +105,30 @@ export default function useEventsViewModel() {
           : event
       )
     );
-      //api
+
+    try {
+      await updateEventAPI(eventId, updatedData);
+    } catch (error) {
+      console.log("ERROR UPDATE:", error);
+    }
   };
 
-  const createEvent = (newEvent) => {
-    const newId = Date.now(); // mock id
+  const createEvent = async (newEvent) => {
+    try {
+      const response = await createEventAPI(newEvent);
 
-    setEvents((prev) => [
-      ...prev,
-      { id: newId, seatsLeft: Number(newEvent.capacity) || 0, ...newEvent }
-    ]);
+      const createdEvent = response.event || {
+        id: Date.now(),
+        ...newEvent
+      };
+
+      setEvents((prev) => [
+        ...prev,
+        createdEvent
+      ]);
+    } catch (error) {
+      console.log("ERROR CREATE:", error);
+    }
   };
 
   return {

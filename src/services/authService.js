@@ -6,12 +6,16 @@ export const generateGenericToken = async () => {
 };
 
 export const registerUser = async (payload) => {
+  console.log("REGISTER PAYLOAD:", payload);
   const { data } = await api.post("/users/register", payload);
+  console.log("REGISTER RESPONSE:", data);
   return data;
 };
 
 export const loginUser = async (payload) => {
+  console.log("LOGIN PAYLOAD:", payload);
   const { data } = await api.post("/users/login", payload);
+  console.log("API RESPONSE:", data);
   return data;
 };
 

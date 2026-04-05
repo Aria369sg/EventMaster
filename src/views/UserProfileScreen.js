@@ -6,7 +6,6 @@ import ProfileField from "../components/ProfileField";
 import PrimaryButton from "../components/PrimaryButton";
 import ScreenContainer from "../components/ScreenContainer";
 import useSessionViewModel from "../viewmodels/useSessionViewModel";
-import TextInformative from "../components/TextInformative";
 import { COLORS } from "../models/theme";
 
 

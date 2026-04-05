@@ -61,7 +61,7 @@ export default function RegisterScreen({ navigation , route}) {
         <View style={styles.contentBlock}>
           <View style={styles.headerWrapper}>
             <SectionHeader
-              title={isAdmin ? "Regístrate aquí" : "Regístrate aquí"}
+              title={isAdmin ? "Registrar admin" : "Regístrate aquí"}
             />
           </View>
 
@@ -94,7 +94,7 @@ export default function RegisterScreen({ navigation , route}) {
               error={errors.password}
             />
 
-            <AppAlert message={submitError} />
+            <AppAlert message={submitError} tone="error" />
             <AppAlert message={successMessage} tone="success" />
           </View>
         </View>
