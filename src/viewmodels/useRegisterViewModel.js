@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { APP_CONFIG } from "../models/appConfig";
 import { useForm } from "../hooks/useForm";
 import { registerAdmin, registerUser } from "../services/authService";
 
@@ -61,16 +60,6 @@ export default function useRegisterViewModel(isAdmin = false) {
 
     try {
       setLoading(true);
-
-      if (APP_CONFIG.useMockAuth) {
-        await new Promise((resolve) => {
-          setTimeout(resolve, 500);
-        });
-
-        setSuccessMessage("Usuario registrado con mock data.");
-        resetForm();
-        return true;
-      }
 
       const registerService = isAdmin ? registerAdmin : registerUser;
       const response = await registerService(form);

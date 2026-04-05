@@ -16,7 +16,7 @@ const navItems = [
 ];
 
 export default function AdminEventsScreen({ navigation }) {
-  const { events, loading, editEvent, deleteEvent } = useEventsViewModel();
+  const { events, loading, deleteEvent } = useEventsViewModel();
   const [eventToDelete, setEventToDelete] = useState(null);
 
   const handleDelete = (event) => {
@@ -29,7 +29,7 @@ export default function AdminEventsScreen({ navigation }) {
         <View style={styles.content}>
           <SectionHeader
             title="Eventos creados"
-            subtitle="Listado mock de eventos administrados."
+            subtitle="Listado de eventos administrados."
           />
 
           {loading ? (
