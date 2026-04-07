@@ -6,6 +6,7 @@ import FormInput from "../components/FormInput";
 import PrimaryButton from "../components/PrimaryButton";
 import ScreenContainer from "../components/ScreenContainer";
 import SectionHeader from "../components/SectionHeader";
+import { formatEventDateTime } from "../helpers/dateTime";
 import { useForm } from "../hooks/useForm";
 import useEventsViewModel from "../viewmodels/useEventsViewModel";
 import { COLORS } from "../models/theme";
@@ -23,6 +24,28 @@ const initialValues = {
   location: "",
 };
 
+const normalizeDateInput = (value) => {
+  const digits = value.replace(/\D/g, "").slice(0, 12);
+
+  if (digits.length <= 4) {
+    return digits;
+  }
+
+  if (digits.length <= 6) {
+    return `${digits.slice(0, 4)}-${digits.slice(4)}`;
+  }
+
+  if (digits.length <= 8) {
+    return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6)}`;
+  }
+
+  if (digits.length <= 10) {
+    return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6, 8)} ${digits.slice(8)}`;
+  }
+
+  return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6, 8)} ${digits.slice(8, 10)}:${digits.slice(10, 12)}`;
+};
+
 export default function AdminCreateEventScreen({ navigation, route }) {
   const event = route?.params?.event;
   const isEdit = !!event;
@@ -33,13 +56,19 @@ export default function AdminCreateEventScreen({ navigation, route }) {
 
   const { form, handleChange, setForm } = useForm(initialValues);
 
+  const handleDateChange = (value) => {
+    handleChange("date", normalizeDateInput(value));
+  };
 
+  const handleCapacityChange = (value) => {
+    handleChange("capacity", value.replace(/\D/g, ""));
+  };
 
   useEffect(() => {
     if(event) {
       setForm({
         name: event.name,
-        date: event.date,
+        date: normalizeDateInput(formatEventDateTime(event.date)),
         capacity: event.capacity.toString(),
         location: event.location,
       })
@@ -65,7 +94,9 @@ export default function AdminCreateEventScreen({ navigation, route }) {
               label="Date and hour"
               placeholder="2026-04-08 10:00"
               value={form.date}
-              onChangeText={(value) => handleChange("date", value)}
+              keyboardType="number-pad"
+              maxLength={16}
+              onChangeText={handleDateChange}
             />
             <FormInput
               label="Place"
@@ -77,7 +108,8 @@ export default function AdminCreateEventScreen({ navigation, route }) {
               label="Capacity"
               placeholder="120"
               value={form.capacity}
-              onChangeText={(value) => handleChange("capacity", value)}
+              keyboardType="number-pad"
+              onChangeText={handleCapacityChange}
             />
             
             <PrimaryButton title={isEdit ? 'UPDATE' : 'CREATE'} onPress={() => {

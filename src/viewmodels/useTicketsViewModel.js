@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {  reservations, cancelReservation } from "../services/reservationsService";
+import { formatEventDateTime } from "../helpers/dateTime";
 import StorageService from "../helpers/StorageService";
 import { STORAGE_KEYS } from "../models/storageKeys";
 
@@ -16,7 +17,7 @@ export default function useTicketsViewModel() {
       const mappedTickets = response.filter((item) => item.status !== "cancelled").map((item)  => ({
         id: item._id,
         title: item.idEvent?.name,
-        date: item.idEvent?.date,
+        date: formatEventDateTime(item.idEvent?.date),
         location: item.idEvent?.location,
         seats: item.seats,
       }));

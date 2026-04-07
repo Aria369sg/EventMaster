@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import {getAllEvents, createEvent as createEventAPI, deleteEvent as deleteEventAPI, updateEvent as updateEventAPI} from "../services/eventService"
 import { createReservation } from "../services/reservationsService";
 import { getUserIdFromToken } from "../helpers/StorageService";
+import { formatEventDateTime } from "../helpers/dateTime";
 import StorageService from "../helpers/StorageService";
 import { STORAGE_KEYS } from "../models/storageKeys";
 
@@ -21,7 +22,7 @@ export default function useEventsViewModel() {
           id: event._id,
           name: event.name,
           description: event.description,
-          date: event.date,
+          date: formatEventDateTime(event.date),
           location: event.location,
           capacity: event.capacity,
           seatsLeft: event.availableSeats,
@@ -134,7 +135,11 @@ export default function useEventsViewModel() {
 
       setEvents((prev) => [
         ...prev,
-        createdEvent
+        {
+          ...createdEvent,
+          id: createdEvent._id || createdEvent.id,
+          date: formatEventDateTime(createdEvent.date),
+        }
       ]);
     } catch (error) {
       console.log("ERROR CREATE:", error);

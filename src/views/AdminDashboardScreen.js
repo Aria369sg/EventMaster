@@ -6,7 +6,6 @@ import EventCard from "../components/EventCard";
 import ScreenContainer from "../components/ScreenContainer";
 import StatCard from "../components/StatCard";
 import useEventsViewModel from "../viewmodels/useEventsViewModel";
-import useSessionViewModel from "../viewmodels/useSessionViewModel";
 import TextInformative from "../components/TextInformative";
 import { COLORS } from "../models/theme";
 
@@ -18,8 +17,7 @@ const navItems = [
 ];
 
 export default function AdminDashboardScreen({ navigation }) {
-  const { user, loading: sessionLoading } = useSessionViewModel();
-  const { events, loading, editEvent, deleteEvent } = useEventsViewModel();
+  const { events, loading, deleteEvent } = useEventsViewModel();
   const [eventToDelete, setEventToDelete] = useState(null);
 
   const handleDelete = (event) => {
@@ -34,7 +32,7 @@ export default function AdminDashboardScreen({ navigation }) {
             text="About"
           />
 
-          {sessionLoading || loading ? (
+          {loading ? (
             <View style={styles.centered}>
               <ActivityIndicator size="large" color={COLORS.accent} />
             </View>
@@ -118,9 +116,5 @@ const styles = StyleSheet.create({
   },
   gap: {
     width: 10,
-  },
-  statsColumn: {
-    flexDirection: 'column',
-    marginBottom: 16,
   },
 });

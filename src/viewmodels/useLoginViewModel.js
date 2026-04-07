@@ -3,7 +3,6 @@ import StorageService from "../helpers/StorageService";
 import { saveItem } from "../helpers/storage";
 import { useForm } from "../hooks/useForm";
 import { saveToken } from "../helpers/tokenStorage";
-import { APP_CONFIG } from "../models/appConfig";
 import { STORAGE_KEYS } from "../models/storageKeys";
 import { loginUser, loginAdmin } from "../services/authService";
 import { jwtDecode } from "jwt-decode";
@@ -63,7 +62,6 @@ export default function useLoginViewModel() {
   try {
     setLoading(true);
 
-    const isMock = APP_CONFIG.useMockAuth;
     let response = null;
     let roleDetected = null;
 
@@ -95,8 +93,6 @@ export default function useLoginViewModel() {
 
       return { ...response, user };
     }
-
-    await saveItem(STORAGE_KEYS.authMode, isMock ? "mock" : "api");
 
     setSuccessMessage(response?.message || "Login exitoso.");
     resetForm();
