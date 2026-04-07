@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import {  reservations, cancelReservation } from "../services/reservationsService";
+import StorageService from "../helpers/StorageService";
+import { STORAGE_KEYS } from "../models/storageKeys";
 
 export default function useTicketsViewModel() {
   const [tickets, setTickets] = useState([]);
@@ -21,8 +23,15 @@ export default function useTicketsViewModel() {
       console.log("RESPONSE RESERVATIONS:", response);
 
       setTickets(mappedTickets);
+
+      await StorageService.setItem(STORAGE_KEYS.ticket, mappedTickets);
     } catch (error) {
       console.log("Error cargando reservaciones:", error);
+
+      const cacheTicket = await StorageService.getItem(STORAGE_KEYS.ticket)
+      if(cacheTicket){
+        setTickets(cacheTicket);
+      }
     } finally {
       setLoading(false);
     }

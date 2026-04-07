@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import {getAllEvents, createEvent as createEventAPI, deleteEvent as deleteEventAPI, updateEvent as updateEventAPI} from "../services/eventService"
 import { createReservation } from "../services/reservationsService";
 import { getUserIdFromToken } from "../helpers/StorageService";
+import StorageService from "../helpers/StorageService";
+import { STORAGE_KEYS } from "../models/storageKeys";
 
 export default function useEventsViewModel() {
   const [events, setEvents] = useState([]);
@@ -27,8 +29,16 @@ export default function useEventsViewModel() {
         }));
 
         setEvents(mappedEvents);
+
+        await StorageService.setItem(STORAGE_KEYS.events, mappedEvents);
       } catch (err) {
-        setError("No fue posible cargar los eventos.");
+        console.log("Sin internet, intentando desde cache");
+        
+        const cacheEvents = await StorageService.getItem(STORAGE_KEYS.events);
+
+        if (cacheEvents){
+          setEvents(cacheEvents);
+        }
       } finally {
         setLoading(false);
       }
