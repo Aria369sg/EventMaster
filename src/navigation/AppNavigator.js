@@ -37,7 +37,6 @@ export default function AppNavigator() {
         <Stack.Screen name="AdminEvents" component={AdminEventsScreen} />
         <Stack.Screen name="AdminProfile" component={AdminProfileScreen} />
         <Stack.Screen name="Events" component={EventsScreen} />
-        
 
       </Stack.Navigator>
     </NavigationContainer>

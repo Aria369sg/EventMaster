@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, Text, View, Image, Pressable } from "react-native";
+import { FlatList, StyleSheet, Text, View, Pressable } from "react-native";
 import { useCallback, useState } from "react";
 import AppDialog from "../components/AppDialog";
 import BottomNavBar from "../components/BottomNavBar";
@@ -20,17 +20,11 @@ const navItems = [
 function TicketCard({ ticket, onPress }) {
   return (
     <View style={styles.ticketCard}>
-      <View style={styles.row}>
-        <Image
-          source={{ uri: "https://via.placeholder.com/100" }}
-          style={styles.image}
-        />
-        <View style={styles.content}>
-          <Text style={styles.ticketTitle}>{ticket.title}</Text>
-          <EventInfoRow type="date" text={ticket.date} />
-          <EventInfoRow type="location" text={ticket.location} />
-          <EventInfoRow type="ticket" text={`${ticket.seats.toString()} people`} />
-        </View>
+      <View style={styles.content}>
+        <Text style={styles.ticketTitle}>{ticket.title}</Text>
+        <EventInfoRow type="date" text={ticket.date} />
+        <EventInfoRow type="location" text={ticket.location} />
+        <EventInfoRow type="ticket" text={`${ticket.seats.toString()} people`} />
       </View>
       <View style={styles.footerRow}>
         <Pressable onPress={onPress} style={styles.button}>
@@ -121,20 +115,8 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     marginBottom: 6,
   },
-  row: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: 10,
-  },
   content: {
-    flex: 1,
-  },
-  image: {
-    width: 62,
-    height: 62,
-    borderRadius: 8,
-    marginRight: 10,
-    backgroundColor: COLORS.surfaceSoft,
+    marginBottom: 10,
   },
   footerRow: {
     flexDirection: "row",

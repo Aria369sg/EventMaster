@@ -17,6 +17,7 @@ const navItems = [
   { key: "events", label: "Events", route: "AdminEvents" },
   { key: "profile", label: "Profile", route: "AdminProfile" },
 ];
+
 const initialValues = {
   name: "",
   date: "",
@@ -48,11 +49,10 @@ const normalizeDateInput = (value) => {
 
 export default function AdminCreateEventScreen({ navigation, route }) {
   const event = route?.params?.event;
-  const isEdit = !!event;
+  const isEdit = Boolean(event);
   const { editEvent, createEvent } = useEventsViewModel();
   const [dialogMessage, setDialogMessage] = useState("");
   const [dialogTone, setDialogTone] = useState("success");
-  
 
   const { form, handleChange, setForm } = useForm(initialValues);
 
@@ -65,23 +65,54 @@ export default function AdminCreateEventScreen({ navigation, route }) {
   };
 
   useEffect(() => {
-    if(event) {
+    if (event) {
       setForm({
         name: event.name,
         date: normalizeDateInput(formatEventDateTime(event.date)),
         capacity: event.capacity.toString(),
         location: event.location,
-      })
+      });
     }
-  }, [event]);
+  }, [event, setForm]);
+
+  const handleSubmit = async () => {
+    const payload = {
+      ...form,
+      capacity: Number(form.capacity),
+    };
+
+    const ok = isEdit
+      ? await editEvent(event.id, payload)
+      : await createEvent(payload);
+
+    setDialogTone(ok ? "success" : "error");
+    setDialogMessage(
+      ok
+        ? isEdit
+          ? "Evento actualizado con exito"
+          : "Evento creado con exito"
+        : isEdit
+          ? "No fue posible actualizar el evento"
+          : "No fue posible crear el evento"
+    );
+  };
+
+  const handleDialogConfirm = () => {
+    setDialogMessage("");
+
+    if (dialogTone === "success") {
+      navigation.navigate("AdminEvents");
+      return;
+    }
+
+    navigation.goBack();
+  };
 
   return (
     <ScreenContainer>
       <View style={styles.wrapper}>
         <View style={styles.content}>
-          <SectionHeader
-            title={isEdit ? 'Update event' : "Create a new event"}
-          />
+          <SectionHeader title={isEdit ? "Update event" : "Create a new event"} />
 
           <View style={styles.formCard}>
             <FormInput
@@ -111,23 +142,11 @@ export default function AdminCreateEventScreen({ navigation, route }) {
               keyboardType="number-pad"
               onChangeText={handleCapacityChange}
             />
-            
-            <PrimaryButton title={isEdit ? 'UPDATE' : 'CREATE'} onPress={() => {
-              const payload = {
-                ...form,
-                capacity: Number(form.capacity),
-              };
 
-              if (isEdit) {
-                editEvent(event.id, payload);
-                setDialogTone("success");
-                setDialogMessage("Evento actualizado con éxito");
-              } else {
-                createEvent(payload);
-                setDialogTone("success");
-                setDialogMessage("Evento creado con éxito");
-              }
-            }} />
+            <PrimaryButton
+              title={isEdit ? "UPDATE" : "CREATE"}
+              onPress={handleSubmit}
+            />
           </View>
         </View>
 
@@ -135,10 +154,7 @@ export default function AdminCreateEventScreen({ navigation, route }) {
           visible={Boolean(dialogMessage)}
           message={dialogMessage}
           tone={dialogTone}
-          onConfirm={() => {
-            setDialogMessage("");
-            navigation.goBack();
-          }}
+          onConfirm={handleDialogConfirm}
         />
 
         <BottomNavBar

@@ -12,39 +12,45 @@ export default function useEventsViewModel() {
   const [error, setError] = useState("");
   const [reserved, setReserved] = useState([])
 
-  useEffect(() => {
-    const loadEvents = async () => {
-      try {
-        setLoading(true);
-        const response = await getAllEvents();
+  const loadEvents = async () => {
+    try {
+      setLoading(true);
+      setError("");
+      const response = await getAllEvents();
 
-        const mappedEvents = response.map((event) => ({
-          id: event._id,
-          name: event.name,
-          description: event.description,
-          date: formatEventDateTime(event.date),
-          location: event.location,
-          capacity: event.capacity,
-          seatsLeft: event.availableSeats,
-          status: event.status,
-        }));
+      const mappedEvents = response.map((event) => ({
+        id: event._id,
+        name: event.name,
+        description: event.description,
+        date: formatEventDateTime(event.date),
+        location: event.location,
+        capacity: event.capacity,
+        seatsLeft: event.availableSeats,
+        status: event.status,
+      }));
 
-        setEvents(mappedEvents);
+      setEvents(mappedEvents);
 
-        await StorageService.setItem(STORAGE_KEYS.events, mappedEvents);
-      } catch (err) {
-        console.log("Sin internet, intentando desde cache");
-        
-        const cacheEvents = await StorageService.getItem(STORAGE_KEYS.events);
+      await StorageService.setItem(STORAGE_KEYS.events, mappedEvents);
+      return mappedEvents;
+    } catch (err) {
+      console.log("Sin internet, intentando desde cache");
+      
+      const cacheEvents = await StorageService.getItem(STORAGE_KEYS.events);
 
-        if (cacheEvents){
-          setEvents(cacheEvents);
-        }
-      } finally {
-        setLoading(false);
+      if (cacheEvents){
+        setEvents(cacheEvents);
+        return cacheEvents;
       }
-    };
 
+      setError("No fue posible cargar los eventos.");
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     loadEvents();
   }, []);
 
@@ -109,40 +115,24 @@ export default function useEventsViewModel() {
   };
 
   const editEvent = async (eventId, updatedData) => {
-    setEvents((prev) =>
-      prev.map((event) =>
-        event.id === eventId
-          ? { ...event, ...updatedData }
-          : event
-      )
-    );
-
     try {
       await updateEventAPI(eventId, updatedData);
+      await loadEvents();
+      return true;
     } catch (error) {
       console.log("ERROR UPDATE:", error);
+      return false;
     }
   };
 
   const createEvent = async (newEvent) => {
     try {
-      const response = await createEventAPI(newEvent);
-
-      const createdEvent = response.event || {
-        id: Date.now(),
-        ...newEvent
-      };
-
-      setEvents((prev) => [
-        ...prev,
-        {
-          ...createdEvent,
-          id: createdEvent._id || createdEvent.id,
-          date: formatEventDateTime(createdEvent.date),
-        }
-      ]);
+      await createEventAPI(newEvent);
+      await loadEvents();
+      return true;
     } catch (error) {
       console.log("ERROR CREATE:", error);
+      return false;
     }
   };
 
@@ -154,6 +144,7 @@ export default function useEventsViewModel() {
     reserved,
     deleteEvent,
     editEvent,
-    createEvent
+    createEvent,
+    reload: loadEvents,
   };
 }

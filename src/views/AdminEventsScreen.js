@@ -1,5 +1,6 @@
 import { ActivityIndicator, FlatList, StyleSheet, View } from "react-native";
-import { useState } from "react";
+import { useCallback, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import AppDialog from "../components/AppDialog";
 import BottomNavBar from "../components/BottomNavBar";
 import EventCard from "../components/EventCard";
@@ -16,12 +17,18 @@ const navItems = [
 ];
 
 export default function AdminEventsScreen({ navigation }) {
-  const { events, loading, deleteEvent } = useEventsViewModel();
+  const { events, loading, deleteEvent, reload } = useEventsViewModel();
   const [eventToDelete, setEventToDelete] = useState(null);
 
   const handleDelete = (event) => {
     setEventToDelete(event);
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      reload();
+    }, [])
+  );
 
   return (
     <ScreenContainer>

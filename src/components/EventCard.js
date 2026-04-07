@@ -1,4 +1,4 @@
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import EventInfoRow from "./EventInfoRow";
 import { COLORS } from "../models/theme";
 
@@ -13,17 +13,11 @@ export default function EventCard({
 }) {
   return (
     <View style={styles.card}>
-      <View style={styles.row}>
-        <Image
-          source={{ uri: "https://via.placeholder.com/100" }}
-          style={styles.image}
-        />
-        <View style={styles.content}>
-          <Text style={styles.title}>{event.name}</Text>
-          <EventInfoRow type="date" text={event.date} />
-          <EventInfoRow type="location" text={event.location} />
-          <EventInfoRow type="capacity" text={`${event.capacity}`} />
-        </View>
+      <View style={styles.content}>
+        <Text style={styles.title}>{event.name}</Text>
+        <EventInfoRow type="date" text={event.date} />
+        <EventInfoRow type="location" text={event.location} />
+        <EventInfoRow type="capacity" text={`${event.capacity}`} />
       </View>
 
       <View style={styles.footerRow}>
@@ -70,20 +64,8 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
     marginBottom: 12,
   },
-  row: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: 12,
-  },
-  image: {
-    width: 62,
-    height: 62,
-    borderRadius: 8,
-    marginRight: 10,
-    backgroundColor: COLORS.surfaceSoft,
-  },
   content: {
-    flex: 1,
+    marginBottom: 12,
   },
   title: {
     fontSize: 14,
