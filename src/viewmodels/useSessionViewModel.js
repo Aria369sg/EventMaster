@@ -24,7 +24,6 @@ export default function useSessionViewModel() {
   const logout = async () => {
     await deleteToken();
     await removeItem(STORAGE_KEYS.userProfile);
-    await removeItem(STORAGE_KEYS.authMode);
   };
 
   return {

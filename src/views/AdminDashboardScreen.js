@@ -1,22 +1,35 @@
 import { ActivityIndicator, FlatList, StyleSheet, View } from "react-native";
+import { useCallback, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import AppDialog from "../components/AppDialog";
 import BottomNavBar from "../components/BottomNavBar";
 import EventCard from "../components/EventCard";
 import ScreenContainer from "../components/ScreenContainer";
 import StatCard from "../components/StatCard";
 import useEventsViewModel from "../viewmodels/useEventsViewModel";
-import useSessionViewModel from "../viewmodels/useSessionViewModel";
 import TextInformative from "../components/TextInformative";
+import { COLORS } from "../models/theme";
 
 const navItems = [
   { key: "dashboard", label: "Dashboard", route: "AdminDashboard" },
-  { key: "create", label: "Crear", route: "AdminCreateEvent" },
-  { key: "events", label: "Eventos", route: "AdminEvents" },
-  { key: "profile", label: "Perfil", route: "AdminProfile" },
+  { key: "create", label: "Add event", route: "AdminCreateEvent" },
+  { key: "events", label: "Events", route: "AdminEvents" },
+  { key: "profile", label: "Profile", route: "AdminProfile" },
 ];
 
 export default function AdminDashboardScreen({ navigation }) {
-  const { user, loading: sessionLoading } = useSessionViewModel();
-  const { events, loading, editEvent, deleteEvent } = useEventsViewModel();
+  const { events, loading, deleteEvent, reload } = useEventsViewModel();
+  const [eventToDelete, setEventToDelete] = useState(null);
+
+  const handleDelete = (event) => {
+    setEventToDelete(event);
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      reload();
+    }, [])
+  );
 
   return (
     <ScreenContainer>
@@ -26,9 +39,9 @@ export default function AdminDashboardScreen({ navigation }) {
             text="About"
           />
 
-          {sessionLoading || loading ? (
+          {loading ? (
             <View style={styles.centered}>
-              <ActivityIndicator size="large" color="#2D6A4F" />
+              <ActivityIndicator size="large" color={COLORS.accent} />
             </View>
           ) : (
 
@@ -41,7 +54,7 @@ export default function AdminDashboardScreen({ navigation }) {
                 event={item}
                 mode='admin'
                 onEdit={() => navigation.navigate("AdminCreateEvent", { event: item })}
-                onDelete={() => deleteEvent(item.id)}
+                onDelete={() => handleDelete(item)}
                  />}
                 ListHeaderComponent={
                   <View>
@@ -66,7 +79,21 @@ export default function AdminDashboardScreen({ navigation }) {
 
           )}
         </View>
-        
+
+        <AppDialog
+          visible={Boolean(eventToDelete)}
+          message="¿Está seguro que desea borrar un evento?"
+          confirmLabel="Aceptar"
+          cancelLabel="Cancelar"
+          onConfirm={() => {
+            if (eventToDelete) {
+              deleteEvent(eventToDelete.id);
+            }
+            setEventToDelete(null);
+          }}
+          onCancel={() => setEventToDelete(null)}
+          tone="error"
+        />
 
         <BottomNavBar
           items={navItems}
@@ -96,9 +123,5 @@ const styles = StyleSheet.create({
   },
   gap: {
     width: 10,
-  },
-  statsColumn: {
-    flexDirection: 'column',
-    marginBottom: 16,
   },
 });

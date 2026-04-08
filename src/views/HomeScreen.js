@@ -1,81 +1,78 @@
-import { ActivityIndicator, Alert, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import AppDialog from "../components/AppDialog";
+import EventCard from "../components/EventCard";
+import FormInput from "../components/FormInput";
 import PrimaryButton from "../components/PrimaryButton";
 import ScreenContainer from "../components/ScreenContainer";
-import SectionHeader from "../components/SectionHeader";
-import { getToken, getTokenDebugInfo } from "../helpers/tokenStorage";
-import useHomeViewModel from "../viewmodels/useHomeViewModel";
+import TextInformative from "../components/TextInformative";
+import { COLORS } from "../models/theme";
+import { useSearchEventViewModel } from "../viewmodels/useSearchEventViewModel";
+import useEventsViewModel from "../viewmodels/useEventsViewModel";
 
 export default function HomeScreen({ navigation }) {
-  const { user, eventsCount, loading, logout } = useHomeViewModel();
+  const { events, loading, error } = useEventsViewModel();
+  const { search, setSearch, filter } = useSearchEventViewModel(events);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
 
-  const handleCheckStorage = async () => {
-    const token = await getToken();
-    const debug = await getTokenDebugInfo();
-
-    Alert.alert(
-      "Revision de storage",
-      [
-        `JWT: ${token || "No encontrado"}`,
-        `Backend activo: ${debug.activeBackend}`,
-        `SecureStore disponible: ${debug.secureStoreAvailable ? "Si" : "No"}`,
-        `Token en SecureStore: ${debug.secureStoreHasToken ? "Si" : "No"}`,
-        `Token en fallback AsyncStorage: ${debug.asyncStorageFallbackHasToken ? "Si" : "No"}`,
-      ].join("\n"),
-    );
-  };
-
-  const handleLogout = async () => {
-    await logout();
-    navigation.reset({
-      index: 0,
-      routes: [{ name: "Login" }],
-    });
-  };
+  const visibleEvents = search ? filter : events;
 
   return (
     <ScreenContainer>
+      <View style={styles.topActionRow}>
+        <View style={styles.primaryAction}>
+          <PrimaryButton
+            title="Register / Login"
+            onPress={() => navigation.navigate("Login")}
+          />
+        </View>
+      </View>
+
+      <FormInput
+        placeholder="Buscador"
+        value={search}
+        onChangeText={setSearch}
+      />
+
+      <TextInformative text="Upcoming events" />
+
       {loading ? (
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color="#2D6A4F" />
+          <ActivityIndicator size="large" color={COLORS.accent} />
         </View>
       ) : (
-        <View style={styles.wrapper}>
-          <SectionHeader
-            title={`Hola, ${user?.name || "usuario"}`}
-            subtitle="Este home funciona como hub principal para el low fidelity del sprint."
-          />
-
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Resumen rapido</Text>
-            <Text style={styles.cardText}>Rol: {user?.role || "user"}</Text>
-            <Text style={styles.cardText}>Correo: {user?.email || "sin correo"}</Text>
-            <Text style={styles.cardText}>Eventos mock disponibles: {eventsCount}</Text>
-          </View>
-
-          <PrimaryButton
-            title="Ver eventos"
-            onPress={() => navigation.navigate("Events")}
-          />
-
-          <View style={styles.spacer} />
-
-          <PrimaryButton
-            title="Ir a registro"
-            onPress={() => navigation.navigate("Register")}
-          />
-
-          <View style={styles.spacer} />
-
-          <PrimaryButton
-            title="Revisar token guardado"
-            onPress={handleCheckStorage}
-          />
-
-          <Text style={styles.logoutText} onPress={handleLogout}>
-            Cerrar sesion mock
-          </Text>
-        </View>
+        <FlatList
+          data={visibleEvents}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <EventCard
+              event={item}
+              mode="user"
+              isReserved={false}
+              isDisabled={(item.seatsLeft ?? 1) <= 0}
+              onReserve={() => setShowAuthDialog(true)}
+            />
+          )}
+          ListEmptyComponent={error ? <Text style={styles.error}>{error}</Text> : null}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
+        />
       )}
+
+      <AppDialog
+        visible={showAuthDialog}
+        message="Para reservar un evento necesitas registrarte o iniciar sesión."
+        confirmLabel="Login"
+        onConfirm={() => {
+          setShowAuthDialog(false);
+          navigation.navigate("Login");
+        }}
+        cancelLabel="Register"
+        onCancel={() => {
+          setShowAuthDialog(false);
+          navigation.navigate("Login");
+        }}
+      />
     </ScreenContainer>
   );
 }
@@ -86,36 +83,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  wrapper: {
-    flex: 1,
-    justifyContent: "center",
+  topActionRow: {
+    marginBottom: 18,
+    alignItems: "flex-end",
   },
-  card: {
-    marginBottom: 20,
-    padding: 18,
-    borderRadius: 14,
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "#D9E4D6",
+  primaryAction: {
+    width: 160,
   },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#163020",
-    marginBottom: 10,
+  listContent: {
+    paddingBottom: 8,
   },
-  cardText: {
-    fontSize: 15,
-    color: "#4A5C4D",
-    marginBottom: 8,
-  },
-  spacer: {
-    height: 12,
-  },
-  logoutText: {
-    marginTop: 18,
-    textAlign: "center",
-    color: "#2D6A4F",
-    fontWeight: "600",
+  error: {
+    fontSize: 14,
+    color: COLORS.danger,
   },
 });

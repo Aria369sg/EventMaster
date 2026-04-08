@@ -1,22 +1,26 @@
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import AppDialog from "../components/AppDialog";
 import EventCard from "../components/EventCard";
 import ScreenContainer from "../components/ScreenContainer";
 import SectionHeader from "../components/SectionHeader";
 import useEventsViewModel from "../viewmodels/useEventsViewModel";
+import { COLORS } from "../models/theme";
 
 export default function EventsScreen({ navigation }) {
   const { events, loading, error } = useEventsViewModel();
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
 
   return (
     <ScreenContainer>
       <SectionHeader
-        title="Eventos"
-        subtitle="Pantalla con mock data para continuar el sprint mientras llega la API final."
+        title="Events"
+        subtitle="Para reservar necesitas iniciar sesión o registrarte."
       />
 
       {loading ? (
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color="#2D6A4F" />
+          <ActivityIndicator size="large" color={COLORS.accent} />
         </View>
       ) : null}
 
@@ -29,12 +33,30 @@ export default function EventsScreen({ navigation }) {
           renderItem={({ item }) => (
             <EventCard
               event={item}
-              onPress={() => navigation.navigate("EventDetail", { event: item })}
+              mode="user"
+              isReserved={false}
+              isDisabled={(item.seatsLeft ?? 1) <= 0}
+              onReserve={() => setShowAuthDialog(true)}
             />
           )}
           showsVerticalScrollIndicator={false}
         />
       ) : null}
+
+      <AppDialog
+        visible={showAuthDialog}
+        message="Para reservar un evento necesitas registrarte o iniciar sesión."
+        confirmLabel="Login"
+        onConfirm={() => {
+          setShowAuthDialog(false);
+          navigation.navigate("Login");
+        }}
+        cancelLabel="Register"
+        onCancel={() => {
+          setShowAuthDialog(false);
+          navigation.navigate("Login");
+        }}
+      />
     </ScreenContainer>
   );
 }
@@ -48,6 +70,6 @@ const styles = StyleSheet.create({
   error: {
     marginBottom: 16,
     fontSize: 14,
-    color: "#B3261E",
+    color: COLORS.danger,
   },
 });

@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { getMockEvents } from "../services/mockEventService";
+import {getAllEvents, createEvent as createEventAPI, deleteEvent as deleteEventAPI, updateEvent as updateEventAPI} from "../services/eventService"
+import { createReservation } from "../services/reservationsService";
+import { getUserIdFromToken } from "../helpers/StorageService";
+import { formatEventDateTime } from "../helpers/dateTime";
+import StorageService from "../helpers/StorageService";
+import { STORAGE_KEYS } from "../models/storageKeys";
 
 export default function useEventsViewModel() {
   const [events, setEvents] = useState([]);
@@ -7,63 +12,128 @@ export default function useEventsViewModel() {
   const [error, setError] = useState("");
   const [reserved, setReserved] = useState([])
 
-  useEffect(() => {
-    const loadEvents = async () => {
-      try {
-        setLoading(true);
-        const response = await getMockEvents();
-        setEvents(response);
-      } catch (err) {
-        setError("No fue posible cargar los eventos.");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const loadEvents = async () => {
+    try {
+      setLoading(true);
+      setError("");
+      const response = await getAllEvents();
 
+      const mappedEvents = response.map((event) => ({
+        id: event._id,
+        name: event.name,
+        description: event.description,
+        date: formatEventDateTime(event.date),
+        location: event.location,
+        capacity: event.capacity,
+        seatsLeft: event.availableSeats,
+        status: event.status,
+      }));
+
+      setEvents(mappedEvents);
+
+      await StorageService.setItem(STORAGE_KEYS.events, mappedEvents);
+      return mappedEvents;
+    } catch (err) {
+      console.log("Sin internet, intentando desde cache");
+      
+      const cacheEvents = await StorageService.getItem(STORAGE_KEYS.events);
+
+      if (cacheEvents){
+        setEvents(cacheEvents);
+        return cacheEvents;
+      }
+
+      setError("No fue posible cargar los eventos.");
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     loadEvents();
   }, []);
 
-  const reserveEvent = async (id) =>{
+  const reserveEvent = async (id) => {
     if (reserved.includes(id)) return;
+    const userId = await getUserIdFromToken();
+
+
+    const selectedEvent = events.find((event) => event.id === id);
+
+    if ((selectedEvent?.seatsLeft ?? 1) <= 0) {
+      return false;
+    }
 
     setReserved((prev) => [...prev, id]);
+    setEvents((prev) =>
+      prev.map((event) =>
+        event.id === id
+          ? { ...event, seatsLeft: Math.max(event.seatsLeft - 1, 0) }
+          : event
+      )
+    );
 
     try {
-      // api
+      await createReservation({
+        idUser: userId,
+        idEvent: id,
+        seats: 1,
+      });
+
+      return true;
     } catch (error) {
+      console.log("ERROR RESERVA FULL:", JSON.stringify(error.response?.data, null, 2));
+      console.log("STATUS:", error.response?.status);
+
+      setEvents((prev) =>
+        prev.map((event) =>
+          event.id === id
+            ? { ...event, seatsLeft: event.seatsLeft + 1 }
+            : event
+        )
+      );
+
       setReserved((prev) =>
         prev.filter((itemId) => itemId !== id)
       );
 
+      return false;
     }
-  }
-
-  const deleteEvent = (eventId) => {
-  setEvents((prev) =>
-    prev.filter((event) => event.id !== eventId)
-  );
-
-    //api
   };
 
-  const editEvent = (eventId, updatedData) => {
+  const deleteEvent = async (eventId) => {
     setEvents((prev) =>
-      prev.map((event) =>
-        event.id === eventId
-          ? { ...event, ...updatedData }
-          : event
-      )
+      prev.filter((event) => event.id !== eventId)
     );
-      //api
+
+    try {
+      await deleteEventAPI(eventId);
+    } catch (error) {
+      console.log("ERROR DELETE:", error);
+    }
   };
 
-  const createEvent = (newEvent) => {
-    const newId = Date.now(); // mock id
+  const editEvent = async (eventId, updatedData) => {
+    try {
+      await updateEventAPI(eventId, updatedData);
+      await loadEvents();
+      return true;
+    } catch (error) {
+      console.log("ERROR UPDATE:", error);
+      return false;
+    }
+  };
 
-    setEvents((prev) => [
-      ...prev,
-      { id: newId, ...newEvent }
-    ]);
+  const createEvent = async (newEvent) => {
+    try {
+      await createEventAPI(newEvent);
+      await loadEvents();
+      return true;
+    } catch (error) {
+      console.log("ERROR CREATE:", error);
+      return false;
+    }
   };
 
   return {
@@ -74,6 +144,7 @@ export default function useEventsViewModel() {
     reserved,
     deleteEvent,
     editEvent,
-    createEvent
+    createEvent,
+    reload: loadEvents,
   };
 }

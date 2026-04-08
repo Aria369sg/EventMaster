@@ -6,7 +6,7 @@ export const createEvent = async (payload) => {
 };
 
 export const getAllEvents = async () => {
-  const { data } = await api.get("/events/getallevents");
+  const { data } = await api.get("/events/getall-events");
   return data;
 };
 

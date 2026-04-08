@@ -1,4 +1,6 @@
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import AppDialog from "../components/AppDialog";
 import BottomNavBar from "../components/BottomNavBar";
 import EventCard from "../components/EventCard";
 import ScreenContainer from "../components/ScreenContainer";
@@ -6,34 +8,44 @@ import useEventsViewModel from "../viewmodels/useEventsViewModel";
 import TextInformative from "../components/TextInformative";
 import FormInput from "../components/FormInput";
 import { useSearchEventViewModel } from "../viewmodels/useSearchEventViewModel";
+import { COLORS } from "../models/theme";
 
 
 const navItems = [
   { key: "home", label: "Home", route: "UserHome" },
-  { key: "events", label: "Eventos", route: "UserEvents" },
-  { key: "tickets", label: "Tickets", route: "UserTickets" },
-  { key: "profile", label: "Perfil", route: "UserProfile" },
+  { key: "events", label: "Events", route: "UserEvents" },
+  { key: "tickets", label: "My tickets", route: "UserTickets" },
+  { key: "profile", label: "Profile", route: "UserProfile" },
 ];
 
 export default function UserEventsScreen({ navigation }) {
   const { events, loading, error, reserveEvent, reserved } = useEventsViewModel();
   const {search, setSearch, filter} = useSearchEventViewModel(events);
+  const [dialogMessage, setDialogMessage] = useState("");
+
+  const handleReserve = async (event) => {
+    const ok = await reserveEvent(event.id);
+
+    if (ok) {
+      setDialogMessage("La reservación se ha hecho con éxito");
+    }
+  };
 
   return (
     <ScreenContainer>
 
       <FormInput
-        placeholder= 'Buscar Evento'
+        placeholder= 'Buscador'
         value={search}
         onChangeText={setSearch}
       />
       <TextInformative
-        text="All the Events"
+        text="Upcoming events"
       />
 
       {loading ? (
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color="#2D6A4F" />
+          <ActivityIndicator size="large" color={COLORS.accent} />
         </View>
       ) : (
         <FlatList
@@ -44,7 +56,8 @@ export default function UserEventsScreen({ navigation }) {
               event={item}
               mode='user'
               isReserved={reserved.includes(item.id)}
-              onReserve={() => reserveEvent(item.id)}
+              isDisabled={(item.seatsLeft ?? 1) <= 0}
+              onReserve={() => handleReserve(item)}
 
             />
           )}
@@ -52,6 +65,13 @@ export default function UserEventsScreen({ navigation }) {
           showsVerticalScrollIndicator={false}
         />
       )}
+
+      <AppDialog
+        visible={Boolean(dialogMessage)}
+        message={dialogMessage}
+        tone="success"
+        onConfirm={() => setDialogMessage("")}
+      />
 
       <BottomNavBar
         items={navItems}
@@ -70,6 +90,6 @@ const styles = StyleSheet.create({
   },
   error: {
     fontSize: 14,
-    color: "#B3261E",
+    color: COLORS.danger,
   },
 });

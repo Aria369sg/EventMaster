@@ -1,6 +1,5 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import BrandHeaderTitle from "../components/BrandHeaderTitle";
 import EventsScreen from "../views/EventsScreen";
 import HomeScreen from "../views/HomeScreen";
 import LoginScreen from "../views/LoginScreen";
@@ -23,19 +22,12 @@ export default function AppNavigator() {
       {/* Stack.Navigator define el flujo de pantallas tipo pila. */}
       <Stack.Navigator
         screenOptions={{
-          headerShown: true,
-          headerTitle: () => <BrandHeaderTitle />,
-          headerShadowVisible: false,
-          headerBackVisible: false,
-          headerLeft: () => null,
-          headerStyle: {
-            backgroundColor: "#F4F7F2",
-          },
+          headerShown: false,
         }}
       >
+        <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
-        <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="UserHome" component={UserHomeScreen} />
         <Stack.Screen name="UserEvents" component={UserEventsScreen} />
         <Stack.Screen name="UserTickets" component={UserTicketsScreen} />
@@ -45,7 +37,6 @@ export default function AppNavigator() {
         <Stack.Screen name="AdminEvents" component={AdminEventsScreen} />
         <Stack.Screen name="AdminProfile" component={AdminProfileScreen} />
         <Stack.Screen name="Events" component={EventsScreen} />
-        
 
       </Stack.Navigator>
     </NavigationContainer>

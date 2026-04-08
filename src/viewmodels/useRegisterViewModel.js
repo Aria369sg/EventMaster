@@ -1,5 +1,24 @@
 import { useState } from "react";
 import { useForm } from "../hooks/useForm";
+import { registerAdmin, registerUser } from "../services/authService";
+
+const getErrorMessage = (error) => {
+  const status = error?.response?.status;
+
+  if (status === 400) {
+    return "Revisa los datos enviados.";
+  }
+
+  if (status === 409) {
+    return "Ese correo ya esta registrado.";
+  }
+
+  if (status === 500) {
+    return "El servidor tuvo un problema. Intenta de nuevo.";
+  }
+
+  return "No fue posible registrar la cuenta.";
+};
 
 const registerInitialValues = {
   name: "",
@@ -22,37 +41,45 @@ const registerValidations = {
   },
 };
 
-export default function useRegisterViewModel() {
+export default function useRegisterViewModel(isAdmin = false) {
   const { form, errors, handleChange, validateForm, resetForm } = useForm(
     registerInitialValues,
     registerValidations,
   );
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
   const submitRegister = async () => {
+    setSubmitError("");
     setSuccessMessage("");
 
     if (!validateForm()) {
       return false;
     }
 
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    await new Promise((resolve) => {
-      setTimeout(resolve, 500);
-    });
+      const registerService = isAdmin ? registerAdmin : registerUser;
+      const response = await registerService(form);
 
-    setSuccessMessage("Usuario registrado con mock data.");
-    resetForm();
-    setLoading(false);
-    return true;
+      setSuccessMessage(response?.message || "Usuario registrado correctamente.");
+      resetForm();
+      return true;
+    } catch (error) {
+      setSubmitError(getErrorMessage(error));
+      return false;
+    } finally {
+      setLoading(false);
+    }
   };
 
   return {
     form,
     errors,
     loading,
+    submitError,
     successMessage,
     handleChange,
     submitRegister,

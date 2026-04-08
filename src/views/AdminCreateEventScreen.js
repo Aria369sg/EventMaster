@@ -1,19 +1,23 @@
 import { StyleSheet, View } from "react-native";
+import { useEffect, useState } from "react";
+import AppDialog from "../components/AppDialog";
 import BottomNavBar from "../components/BottomNavBar";
 import FormInput from "../components/FormInput";
 import PrimaryButton from "../components/PrimaryButton";
 import ScreenContainer from "../components/ScreenContainer";
 import SectionHeader from "../components/SectionHeader";
+import { formatEventDateTime } from "../helpers/dateTime";
 import { useForm } from "../hooks/useForm";
 import useEventsViewModel from "../viewmodels/useEventsViewModel";
-import { useEffect } from "react";
+import { COLORS } from "../models/theme";
 
 const navItems = [
   { key: "dashboard", label: "Dashboard", route: "AdminDashboard" },
-  { key: "create", label: "Crear", route: "AdminCreateEvent" },
-  { key: "events", label: "Eventos", route: "AdminEvents" },
-  { key: "profile", label: "Perfil", route: "AdminProfile" },
+  { key: "create", label: "Add event", route: "AdminCreateEvent" },
+  { key: "events", label: "Events", route: "AdminEvents" },
+  { key: "profile", label: "Profile", route: "AdminProfile" },
 ];
+
 const initialValues = {
   name: "",
   date: "",
@@ -21,34 +25,94 @@ const initialValues = {
   location: "",
 };
 
+const normalizeDateInput = (value) => {
+  const digits = value.replace(/\D/g, "").slice(0, 12);
+
+  if (digits.length <= 4) {
+    return digits;
+  }
+
+  if (digits.length <= 6) {
+    return `${digits.slice(0, 4)}-${digits.slice(4)}`;
+  }
+
+  if (digits.length <= 8) {
+    return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6)}`;
+  }
+
+  if (digits.length <= 10) {
+    return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6, 8)} ${digits.slice(8)}`;
+  }
+
+  return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6, 8)} ${digits.slice(8, 10)}:${digits.slice(10, 12)}`;
+};
+
 export default function AdminCreateEventScreen({ navigation, route }) {
   const event = route?.params?.event;
-  const isEdit = !!event;
+  const isEdit = Boolean(event);
   const { editEvent, createEvent } = useEventsViewModel();
-  
+  const [dialogMessage, setDialogMessage] = useState("");
+  const [dialogTone, setDialogTone] = useState("success");
 
   const { form, handleChange, setForm } = useForm(initialValues);
 
+  const handleDateChange = (value) => {
+    handleChange("date", normalizeDateInput(value));
+  };
 
+  const handleCapacityChange = (value) => {
+    handleChange("capacity", value.replace(/\D/g, ""));
+  };
 
   useEffect(() => {
-    if(event) {
+    if (event) {
       setForm({
         name: event.name,
-        date: event.date,
+        date: normalizeDateInput(formatEventDateTime(event.date)),
         capacity: event.capacity.toString(),
         location: event.location,
-      })
+      });
     }
-  }, [event]);
+  }, [event, setForm]);
+
+  const handleSubmit = async () => {
+    const payload = {
+      ...form,
+      capacity: Number(form.capacity),
+    };
+
+    const ok = isEdit
+      ? await editEvent(event.id, payload)
+      : await createEvent(payload);
+
+    setDialogTone(ok ? "success" : "error");
+    setDialogMessage(
+      ok
+        ? isEdit
+          ? "Evento actualizado con exito"
+          : "Evento creado con exito"
+        : isEdit
+          ? "No fue posible actualizar el evento"
+          : "No fue posible crear el evento"
+    );
+  };
+
+  const handleDialogConfirm = () => {
+    setDialogMessage("");
+
+    if (dialogTone === "success") {
+      navigation.navigate("AdminEvents");
+      return;
+    }
+
+    navigation.goBack();
+  };
 
   return (
     <ScreenContainer>
       <View style={styles.wrapper}>
         <View style={styles.content}>
-          <SectionHeader
-            title={isEdit ? 'Update event' : "Create a new event"}
-          />
+          <SectionHeader title={isEdit ? "Update event" : "Create a new event"} />
 
           <View style={styles.formCard}>
             <FormInput
@@ -61,7 +125,9 @@ export default function AdminCreateEventScreen({ navigation, route }) {
               label="Date and hour"
               placeholder="2026-04-08 10:00"
               value={form.date}
-              onChangeText={(value) => handleChange("date", value)}
+              keyboardType="number-pad"
+              maxLength={16}
+              onChangeText={handleDateChange}
             />
             <FormInput
               label="Place"
@@ -73,25 +139,23 @@ export default function AdminCreateEventScreen({ navigation, route }) {
               label="Capacity"
               placeholder="120"
               value={form.capacity}
-              onChangeText={(value) => handleChange("capacity", value)}
+              keyboardType="number-pad"
+              onChangeText={handleCapacityChange}
             />
-            
-            <PrimaryButton title={isEdit ? 'UPDATE' : 'CREATE'} onPress={() => {
-              const payload = {
-                ...form,
-                capacity: Number(form.capacity),
-              };
 
-              if (isEdit) {
-                editEvent(event.id, payload);
-              } else {
-                createEvent(payload);
-              }
-
-              navigation.goBack();
-            }} />
+            <PrimaryButton
+              title={isEdit ? "UPDATE" : "CREATE"}
+              onPress={handleSubmit}
+            />
           </View>
         </View>
+
+        <AppDialog
+          visible={Boolean(dialogMessage)}
+          message={dialogMessage}
+          tone={dialogTone}
+          onConfirm={handleDialogConfirm}
+        />
 
         <BottomNavBar
           items={navItems}
@@ -113,8 +177,8 @@ const styles = StyleSheet.create({
   formCard: {
     padding: 18,
     borderRadius: 14,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     borderWidth: 1,
-    borderColor: "#D9E4D6",
+    borderColor: COLORS.border,
   },
 });

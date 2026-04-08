@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
+import { COLORS } from "../models/theme";
 
 export default function StatCard({ label, value }) {
   return (
@@ -15,19 +16,19 @@ const styles = StyleSheet.create({
     minHeight: 86,
     padding: 14,
     borderRadius: 12,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     borderWidth: 1,
-    borderColor: "#D9E4D6",
+    borderColor: COLORS.border,
     justifyContent: "center",
   },
   value: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#163020",
+    color: COLORS.text,
     marginBottom: 6,
   },
   label: {
     fontSize: 13,
-    color: "#4A5C4D",
+    color: COLORS.textMuted,
   },
 });

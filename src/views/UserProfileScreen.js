@@ -1,29 +1,27 @@
-import { ActivityIndicator, StyleSheet, View } from "react-native";
-import { Image } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import AppDialog from "../components/AppDialog";
 import BottomNavBar from "../components/BottomNavBar";
 import ProfileField from "../components/ProfileField";
 import PrimaryButton from "../components/PrimaryButton";
 import ScreenContainer from "../components/ScreenContainer";
 import useSessionViewModel from "../viewmodels/useSessionViewModel";
-import TextInformative from "../components/TextInformative";
+import { COLORS } from "../models/theme";
 
 
 const navItems = [
   { key: "home", label: "Home", route: "UserHome" },
-  { key: "events", label: "Eventos", route: "UserEvents" },
-  { key: "tickets", label: "Tickets", route: "UserTickets" },
-  { key: "profile", label: "Perfil", route: "UserProfile" },
+  { key: "events", label: "Events", route: "UserEvents" },
+  { key: "tickets", label: "My tickets", route: "UserTickets" },
+  { key: "profile", label: "Profile", route: "UserProfile" },
 ];
 
 export default function UserProfileScreen({ navigation }) {
   const { user, loading, logout } = useSessionViewModel();
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
   const handleLogout = async () => {
-    await logout();
-    navigation.reset({
-      index: 0,
-      routes: [{ name: "Login" }],
-    });
+    setShowLogoutDialog(true);
   };
 
   return (
@@ -34,25 +32,20 @@ export default function UserProfileScreen({ navigation }) {
 
           {loading ? (
             <View style={styles.centered}>
-              <ActivityIndicator size="large" color="#2D6A4F" />
+              <ActivityIndicator size="large" color={COLORS.accent} />
             </View>
           ) : (
             
             <View style={styles.card}>
-              <Image
-                source={{ uri: user?.photo || "https://via.placeholder.com/100" }}
-                style={styles.avatar}
-              />
-              <View style={styles.textContainer}>
-                <TextInformative
-                  text={user?.name || "Usuario"}
-                />
-                <TextInformative
-                  text={user?.email || "Email"}
-                />
+              <View style={styles.avatar}>
+                <Text style={styles.avatarFace}>◡</Text>
               </View>
-              <ProfileField label="Nombre" value={user?.name || "No disponible"} />
-              <ProfileField label="Rol" value={user?.role || "user"} />
+              <View style={styles.textContainer}>
+                <Text style={styles.profileName}>{user?.name || "Usuario"}</Text>
+                <Text style={styles.profileMail}>{user?.email || "Email"}</Text>
+              </View>
+              <ProfileField label="Name:" value={user?.name || "No disponible"} />
+              <ProfileField label="Account status:" value="Active" />
               
               
             </View>
@@ -62,6 +55,21 @@ export default function UserProfileScreen({ navigation }) {
         <View style={styles.wrapperBottom}>
               <PrimaryButton title="Logout" onPress={handleLogout} />
         </View>
+        <AppDialog
+          visible={showLogoutDialog}
+          message="¿Está seguro que desea salir de su cuenta?"
+          confirmLabel="Aceptar"
+          onConfirm={async () => {
+            setShowLogoutDialog(false);
+            await logout();
+            navigation.reset({
+              index: 0,
+              routes: [{ name: "Home" }],
+            });
+          }}
+          onCancel={() => setShowLogoutDialog(false)}
+          cancelLabel="Cancelar"
+        />
         <BottomNavBar
           items={navItems}
           activeKey="profile"
@@ -87,9 +95,9 @@ const styles = StyleSheet.create({
   card: {
     padding: 18,
     borderRadius: 14,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     borderWidth: 1,
-    borderColor: "#D9E4D6",
+    borderColor: COLORS.border,
   },
   avatar: {
     width: 100,
@@ -97,12 +105,28 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     alignSelf: "center",
     marginBottom: 20,
-    borderWidth: 2,
-    borderColor: "#ccc",
+    backgroundColor: "#FF1E1E",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarFace: {
+    color: COLORS.text,
+    fontSize: 36,
+    marginTop: -8,
   },
   textContainer: {
     alignItems: "center",
     marginBottom: 20,
+  },
+  profileName: {
+    color: COLORS.text,
+    fontSize: 14,
+    fontWeight: "700",
+    marginBottom: 4,
+  },
+  profileMail: {
+    color: COLORS.textMuted,
+    fontSize: 12,
   },
   wrapperBottom:{
     justifyContent: 'flex-end',

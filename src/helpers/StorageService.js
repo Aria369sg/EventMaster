@@ -1,8 +1,23 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
+import {jwtDecode} from "jwt-decode";
+
+const getUserIdFromToken = async () => {
+  const token = await StorageService.getToken();
+
+  if (!token) {
+    console.log("NO HAY TOKEN");
+    return null;
+  }
+
+  const decoded = jwtDecode(token);
+  console.log("USER ID:", decoded.id);
+
+  return decoded.id;
+};
 
 const TOKEN_FALLBACK_KEY = "auth_token_fallback";
-const TOKEN_SERVICE = "greenmarket_auth_token";
+const TOKEN_SERVICE = "JWTToken";
 
 class StorageService {
   static patterns = {
@@ -166,5 +181,5 @@ class StorageService {
   }
 }
 
-export { TOKEN_FALLBACK_KEY, TOKEN_SERVICE };
+export { TOKEN_FALLBACK_KEY, TOKEN_SERVICE, getUserIdFromToken };
 export default StorageService;

@@ -1,23 +1,37 @@
-import axios from "axios";
-import { getToken } from "../helpers/tokenStorage";
 
-export const API_BASE_URL = "http://TU_IP:PUERTO";
+import axios from 'axios';
+import { getToken } from '../helpers/tokenStorage';
 
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
+// Crear la instancia axios
+export const api = axios.create({
+    baseURL: 'https://eventmaster-y4gy.onrender.com',
+    timeout: 10000,
+    headers: {
+        'Content-Type': 'application/json',
+    }
+});
+
+api.interceptors.request.use(
+  async (config) => {
+    try {
+      const token = await getToken('JWTToken'/*, pasamos el valor*/ );
+      console.log("TOKEN EN INTERCEPTOR:", token);
+
+      //Solo si el token existe, lo añadimos a los headers
+      if (token !== null) {
+          config.headers.Authorization = `Bearer ${token}`;
+      }
+      console.log("HEADERS:", config.headers);
+
+      return config;
+    } catch (error) {
+        return Promise.reject(error);
+    }
+    
   },
-});
-
-api.interceptors.request.use(async (config) => {
-  const token = await getToken();
-
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  (error) => {
+      return Promise.reject(error);
   }
-
-  return config;
-});
+);
 
 export default api;

@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
+import { COLORS } from "../models/theme";
 
 export default function ProfileField({ label, value }) {
   return (
@@ -24,7 +25,7 @@ const styles = StyleSheet.create({
   },
   value: {
     fontSize: 15,
-    color: "#163020",
+    color: COLORS.screen,
     fontWeight: "600",
   },
 });

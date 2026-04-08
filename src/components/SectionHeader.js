@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
+import { COLORS } from "../models/theme";
 
 export default function SectionHeader({ title, subtitle }) {
   return (
@@ -17,11 +18,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 30,
     fontWeight: "700",
-    color: "#163020",
+    color: COLORS.text,
   },
   subtitle: {
     fontSize: 15,
     lineHeight: 22,
-    color: "#4A5C4D",
+    color: COLORS.textMuted,
   },
 });
